@@ -1,0 +1,18 @@
+<div class="dialogue-container">
+    <div mat-dialog-title class="dialogue-title">
+      <span class="title-text">File</span>
+      <span mat-icon-button mat-dialog-close>
+        <mat-icon (click)="onClose()">close</mat-icon>
+      </span>
+    </div>
+    <mat-divider></mat-divider>
+    <mat-dialog-content>
+      <div *ngFor="let file of files; let i = index" class="file-item">
+        <span class="file-name">{{ file.name }}</span>
+        <span mat-icon-button (click)="removeFile(i)">
+          <mat-icon>delete_outline</mat-icon>
+        </span>
+      </div>
+    </mat-dialog-content>
+      <button  class="save-dialog-btn" mat-raised-button color="primary" (click)="onSave()">Save</button>
+  </div>

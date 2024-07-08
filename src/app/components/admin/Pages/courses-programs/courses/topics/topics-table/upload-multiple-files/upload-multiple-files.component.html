@@ -1,0 +1,24 @@
+<!-- <div class="upload-dialogBox">
+    <input type="file" multiple (change)="onFileSelected($event)">
+    <button mat-raised-button color="primary" (click)="onUpload()">Upload</button>
+  </div> -->
+
+  <div class="upload-dialogue-container">
+    <div mat-dialog-title class="upload-title">
+      <span class="title-text">Upload Files</span>
+      <span mat-icon-button mat-dialog-close>
+        <mat-icon style="float: right;" (click)="onCancel()" >close</mat-icon>
+      </span>
+    </div>
+    <div class="mid-container" (drop)="onDrop($event)" (dragover)="onDragOver($event)">
+      <div style="display: none;">
+        <input type="file" #fileInput multiple (change)="onFileSelected($event)">
+      </div>
+        <h3>Drag & Drop your File or <a href="#" (click)="handleUploadClick($event)">Upload</a></h3>
+    </div>
+    <div class="text">(Supported format: pdf, xls,ppt,audio,video (Max size 2 MB))</div>
+    <div class="btn">
+        <button  class="upload-dialog-btn" mat-button (click)="onUpload()">Upload</button>
+      <button  class="cancel-dialog-btn" mat-raised-button (click)="onCancel()">Cancel</button>
+    </div>
+  </div>
