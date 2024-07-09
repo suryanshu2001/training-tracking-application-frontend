@@ -7,7 +7,7 @@ import { Observable, mergeMap } from 'rxjs';
 export class TopicsTableDataService {
   constructor(private _http: HttpClient) {}
 
-  Index: string = 'http://localhost:3000/topics';
+  Index: string = 'http://localhost:5050/topics';
 
   // delete through ID
   addTopics(code: string, newData: any): Observable<any> {

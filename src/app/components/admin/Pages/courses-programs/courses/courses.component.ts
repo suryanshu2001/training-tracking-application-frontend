@@ -44,7 +44,7 @@ export class CoursesComponent {
   displayedColumns: string[] = [
     'actions',
     'code',
-    'course',
+    'courseName',
     'theoryTime',
     'practiceTime',
     'description',
@@ -58,7 +58,7 @@ export class CoursesComponent {
   ngOnInit(): void {
     this.addCourseReactiveForm = new FormGroup({
       code: new FormControl(null, Validators.required),
-      course: new FormControl(null, Validators.required),
+      courseName: new FormControl(null, Validators.required),
       theoryTime: new FormControl(null, Validators.required),
       practiceTime: new FormControl(null, Validators.required),
       description: new FormControl(null, [

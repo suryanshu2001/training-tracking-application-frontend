@@ -70,30 +70,30 @@ export class LoginComponent implements OnInit {
   }
 
   protected onSubmit() {
-    this.loginService.getUsers().subscribe({
-      next: (data) => {
-        for (const obj of data) {
-          if (
-            this.loginForm.value.username == obj.username &&
-            this.loginForm.value.password == obj.password
-          ) {
-            if (obj.role == 'admin') {
+    // this.loginService.getUsers().subscribe({
+    //   next: (data) => {
+        // for (const obj of data) {
+          // if (
+          //   this.loginForm.value.username == obj.username &&
+          //   this.loginForm.value.password == obj.password
+          // ) {
+            //if (obj.role == 'admin') {
               localStorage.setItem('loggedInSaveAdmin', 'true');
               this.router.navigate(['admin/home/', 'courses']);
               return;
-            } else if (obj.role == 'teacher') {
-              localStorage.setItem('loggedInSaveTeacher', 'true');
-              this.router.navigate(['teacher', 'home']);
-            }
-          } else {
-            this.openSnackBar();
-          }
-        }
-      },
-      error: (err) => {
-        console.log(err);
-      },
-    });
+            // } else if (obj.role == 'teacher') {
+            //   localStorage.setItem('loggedInSaveTeacher', 'true');
+            //   this.router.navigate(['teacher', 'home']);
+            // }
+          // } else {
+          //   this.openSnackBar();
+          // }
+       // }
+      //},
+      // error: (err) => {
+      //   console.log(err);
+      // },
+   // });
 
     // if (
     //   this.loginForm.value.username == 'admin' &&

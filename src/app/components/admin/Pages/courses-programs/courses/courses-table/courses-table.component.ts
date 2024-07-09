@@ -91,7 +91,7 @@ export class CoursesTableComponent implements OnInit {
     // reactive form init
     this.editCourseReactiveForm = new FormGroup({
       code: new FormControl(null, Validators.required),
-      course: new FormControl(null, Validators.required),
+      courseName: new FormControl(null, Validators.required),
       theoryTime: new FormControl(null, Validators.required),
       practiceTime: new FormControl(null, Validators.required),
       description: new FormControl(null, [
@@ -101,21 +101,21 @@ export class CoursesTableComponent implements OnInit {
     });
 
     // putting topic data inside topicData array
-    this.addTopicsData.getTopics().subscribe({
-      next: (data) => {
-        this.topicsData = data;
-      },
-      error: (err) => {
-        console.log(err);
-      },
-    });
+    // this.addTopicsData.getTopics().subscribe({
+    //   next: (data) => {
+    //     this.topicsData = data;
+    //   },
+    //   error: (err) => {
+    //     console.log(err);
+    //   },
+    // });
   }
 
   // READ DATA
   protected getCoursesList() {
     this.courseTableData.getCourses().subscribe({
       next: (data) => {
-        // console.log(data);
+        //console.log(data);
         this.dataSource = new MatTableDataSource(data);
         this.dataSource.sort = this.sort;
         this.dataSource.paginator = this.paginator;
@@ -148,8 +148,8 @@ export class CoursesTableComponent implements OnInit {
 
   // EDIT DATA
   editingRowID: number | null = null;
-  protected editCourse(i: number, row: TableData) {
-    // console.log(row);
+  protected editCourse(i: number, row: any) {
+    //console.log(row);
     this.editingRowID = i;
     this.editCourseReactiveForm.patchValue(row);
   }
@@ -162,7 +162,7 @@ export class CoursesTableComponent implements OnInit {
     // console.log(row.id);
     if (this.editCourseReactiveForm.valid) {
       this.courseTableData
-        .editCourses(row.id, this.editCourseReactiveForm.value)
+        .editCourses(row.courseId, this.editCourseReactiveForm.value)
         .subscribe({
           next: (data) => {
             this.editingRowID = null;

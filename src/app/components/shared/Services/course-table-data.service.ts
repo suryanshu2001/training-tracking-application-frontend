@@ -9,7 +9,7 @@ import { TableData } from '../../admin/shared/models/courses-table.model';
 export class CourseTableDataService {
   constructor(private _http: HttpClient) {}
 
-  Index: string = 'http://localhost:3000/courses';
+  Index: string = 'http://localhost:5050/courses';
 
   addCourse(data: TableData): Observable<any> {
     return this._http.post(`${this.Index}`, data);
@@ -28,6 +28,6 @@ export class CourseTableDataService {
   }
 
   editCourses(id: string, data: TableData): Observable<any> {
-    return this._http.patch(`${this.Index}/${id}`, data);
+    return this._http.put(`${this.Index}/${id}`, data);
   }
 }

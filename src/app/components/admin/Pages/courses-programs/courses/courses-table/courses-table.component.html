@@ -66,13 +66,13 @@
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Course Name</th>
           <td mat-cell *matCellDef="let row; let i = index">
             <ng-container *ngIf="i != editingRowID; else editMode">
-              {{ row.course }}
+              {{ row.courseName }}
             </ng-container>
             <ng-template #editMode>
               <input
                 type="text"
                 name="course"
-                formControlName="course"
+                formControlName="courseName"
                 placeholder="Enter Course Name"
                 class="input-fields course-name"
               />
@@ -206,27 +206,25 @@
             <ng-container>
               <div class="topics-container">
                 <span
-                  *ngFor="let topicObj of topicsData; let topicObjIndex = index"
-                  [style.display]="
-                    topicObj.code === row.code ? 'inline' : 'none'
-                  "
+                  *ngFor="let topicObj of row.topics; let topicObjIndex = index"
+                  [style.display]="row.topics.length < 3 ? 'inline' : 'none'"
                 >
-                  <span
+                  <!-- <span
                     class="topic-names"
                     *ngFor="let topic of topicObj.topic; let topicIndex = index"
-                    [style.display]="topicIndex < 3 ? 'inline' : 'none'"
-                  >
-                    {{ topic.topicName }},
-                  </span>
-                  <span
-                    *ngIf="topicObj.topic.length > 3"
+                    [style.display]="row.topics.length < 3 ? 'inline' : 'none'"
+                  > -->
+                    {{ topicObj.topicName }},
+                  <!-- </span> -->
+                  <!-- <span
+                    *ngIf="row.topics.length > 3"
                     matTooltip="{{ getRemainingTopics(topicObj.topic) }}"
                     matTooltipClass="tooltip-custom"
                   >
                     <span class="extra-topics">
-                      +{{ topicObj.topic.length - 3 }}</span
+                      +{{ row.topics.length - 3 }}</span
                     >
-                  </span>
+                  </span> -->
                 </span>
               </div>
             </ng-container>
