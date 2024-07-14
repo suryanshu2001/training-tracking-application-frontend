@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class BatchServiceService {
-  Index: string = 'http://localhost:3000/batches';
+  Index: string = 'http://localhost:5050/batches';
   constructor(private _http: HttpClient) {}
 
   addBatch(data: any): Observable<any> {

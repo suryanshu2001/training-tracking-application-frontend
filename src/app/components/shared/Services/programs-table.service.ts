@@ -9,7 +9,7 @@ import { Observable } from 'rxjs';
 export class ProgramsTableService {
   constructor(private _http: HttpClient) {}
 
-  Index: string = 'http://localhost:3000/programs';
+  Index: string = 'http://localhost:5050/programs';
 
   addPrograms(data: ProgramsTable) {
     return this._http.post(this.Index, data);
@@ -19,8 +19,8 @@ export class ProgramsTableService {
     return this._http.get(this.Index);
   }
 
-  editProgram(id: string, data: any) {
-    return this._http.patch(`${this.Index}/${id}`, data);
+  editProgram(id: number, data: any) {
+    return this._http.put(`${this.Index}/${id}`, data);
   }
   deleteProgram(id: string) {
     return this._http.delete(`${this.Index}/${id}`);

@@ -7,7 +7,7 @@
     </div>
     <mat-divider></mat-divider>
     <mat-dialog-content>
-      <div *ngFor="let file of files; let i = index" class="file-item">
+      <div *ngFor="let file of data.files; let i = index" class="file-item">
         <span class="file-name">{{ file.name }}</span>
         <span mat-icon-button (click)="removeFile(i)">
           <mat-icon>delete_outline</mat-icon>

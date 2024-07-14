@@ -54,23 +54,24 @@ export class TeachersComponent implements OnInit {
     'emailID',
   ];
 
-  courses: string[] = [];
+  courses: any[] = [];
   ngOnInit(): void {
     this.courseTableData.getCourses().subscribe({
       next: (data) => {
-        for (const obj of data) {
-          this.courses.push(obj.course);
+        for (const course of data) {
+          this.courses.push(course);
         }
       },
       error: (err) => {
         console.log(err);
       },
-    });
 
+    });
+    console.log("Courses : ",this.courses)
     this.addTeacherReactiveForm = new FormGroup({
-      teacherName: new FormControl(null, Validators.required),
-      courseAssigned: new FormControl(null, Validators.required),
-      emailID: new FormControl(null, [Validators.required, Validators.email]),
+      name: new FormControl(null, Validators.required),
+      courses: new FormControl(null, Validators.required),
+      email: new FormControl(null, [Validators.required, Validators.email]),
     });
   }
 

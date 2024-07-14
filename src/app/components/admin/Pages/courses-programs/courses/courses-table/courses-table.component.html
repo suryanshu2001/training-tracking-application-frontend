@@ -13,7 +13,7 @@
                 <span class="material-icons-outlined"> edit </span>
               </mat-icon>
               <!--(click)="openDeleteDialog(row.id)"  -->
-              <mat-icon (click)="deleteCourse(row.id, row.code, row.course)"
+              <mat-icon (click)="deleteCourse(row.courseId, row.code, row.course)"
                 ><span class="material-icons-outlined"> delete </span></mat-icon
               >
             </div>
@@ -200,34 +200,29 @@
           </td>
         </ng-container>
 
-        <ng-container matColumnDef="addTopics">
+        <ng-container matColumnDef="topics">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Topics</th>
-          <td mat-cell *matCellDef="let row; let i = index">
-            <ng-container>
-              <div class="topics-container">
+          <td mat-cell *matCellDef="let row">
+            <div class="topics-container">
+              <ng-container *ngIf="row.topics && row.topics.length > 0">
                 <span
-                  *ngFor="let topicObj of row.topics; let topicObjIndex = index"
-                  [style.display]="row.topics.length < 3 ? 'inline' : 'none'"
+                  *ngFor="let topic of row.topics.slice(0, 2); let last = last"
                 >
-                  <!-- <span
-                    class="topic-names"
-                    *ngFor="let topic of topicObj.topic; let topicIndex = index"
-                    [style.display]="row.topics.length < 3 ? 'inline' : 'none'"
-                  > -->
-                    {{ topicObj.topicName }},
-                  <!-- </span> -->
-                  <!-- <span
-                    *ngIf="row.topics.length > 3"
-                    matTooltip="{{ getRemainingTopics(topicObj.topic) }}"
-                    matTooltipClass="tooltip-custom"
-                  >
-                    <span class="extra-topics">
-                      +{{ row.topics.length - 3 }}</span
-                    >
-                  </span> -->
+                  {{ topic.topicName }}{{ last ? "" : ", " }}
                 </span>
-              </div>
-            </ng-container>
+                <span
+                  *ngIf="row.topics.length > 2"
+                  class="extra-topics"
+                  [matTooltip]="getExtraTopicsTooltip(row.topics.slice(2))"
+                  matTooltipClass="tooltip-custom"
+                >
+                  +{{ row.topics.length - 2 }} more
+                </span>
+              </ng-container>
+              <span *ngIf="!row.topics || row.topics.length === 0"
+                >No topics</span
+              >
+            </div>
           </td>
         </ng-container>
       </form>

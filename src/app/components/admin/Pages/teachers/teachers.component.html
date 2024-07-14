@@ -85,7 +85,7 @@
                   >
                     <input
                       matInput
-                      formControlName="teacherName"
+                      formControlName="name"
                       placeholder="Enter Teacher Name"
                     />
                     <mat-error>Field must not be empty</mat-error>
@@ -106,7 +106,7 @@
                     class="dense-form-field-5"
                   >
                     <mat-select
-                      formControlName="courseAssigned"
+                      formControlName="courses"
                       multiple
                       placeholder="Select Course"
                     >
@@ -114,7 +114,7 @@
                         *ngFor="let course of courses"
                         [value]="course"
                       >
-                        {{ course }}
+                        {{ course.courseName}}
                       </mat-option>
                     </mat-select>
                     <mat-error>Field must not be empty</mat-error>
@@ -136,7 +136,7 @@
                   >
                     <input
                       matInput
-                      formControlName="emailID"
+                      formControlName="email"
                       placeholder="Enter Email ID"
                     />
                     <mat-error>Must be a valid email</mat-error>

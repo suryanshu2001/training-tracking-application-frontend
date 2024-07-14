@@ -40,7 +40,7 @@ export class TeachersTableComponent implements OnInit, OnChanges {
 
   editTeachersReactiveForm!: FormGroup;
   editingRowID: number = -1;
-  courses: string[] = [];
+  courses: any[] = [];
   displayedColumns: string[] = [
     'actions',
     'teacherName',
@@ -55,8 +55,8 @@ export class TeachersTableComponent implements OnInit, OnChanges {
   ngOnInit(): void {
     this.coursesService.getCourses().subscribe({
       next: (data) => {
-        for (const obj of data) {
-          this.courses.push(obj.course);
+        for (const course of data) {
+          this.courses.push(course);
         }
       },
       error: (error) => {
@@ -64,9 +64,9 @@ export class TeachersTableComponent implements OnInit, OnChanges {
       },
     });
     this.editTeachersReactiveForm = new FormGroup({
-      teacherName: new FormControl(null, Validators.required),
-      courseAssigned: new FormControl(null, Validators.required),
-      emailID: new FormControl(null, [Validators.required, Validators.email]),
+      name: new FormControl(null, Validators.required),
+      courses: new FormControl(null, Validators.required),
+      email: new FormControl(null, [Validators.required, Validators.email]),
     });
   }
   // Search Filter
@@ -110,10 +110,10 @@ export class TeachersTableComponent implements OnInit, OnChanges {
     });
   }
 
-  saveTeacher(row: TeachersTableData) {
+  saveTeacher(row: any) {
     if (this.editTeachersReactiveForm.valid) {
       this.teachersService
-        .editTeachers(row.id, this.editTeachersReactiveForm.value)
+        .editTeachers(row.teacherId, {...this.editTeachersReactiveForm.value,teacherId:row.teacherId})
         .subscribe({
           next: (data) => {
             this.editingRowID = -1;
@@ -127,7 +127,7 @@ export class TeachersTableComponent implements OnInit, OnChanges {
   }
 
   editTeacher(id: number, row: TeachersTableData) {
-    // console.log(row);
+    console.log(row);
     this.editingRowID = id;
     console.log(id);
     this.editTeachersReactiveForm.patchValue(row);
@@ -138,7 +138,7 @@ export class TeachersTableComponent implements OnInit, OnChanges {
     this.editTeachersReactiveForm.reset();
   }
 
-  protected deleteTeacher(id: string, teacherName: string) {
+  protected deleteTeacher(id: number, teacherName: string) {
     const dialogRef = this._dialog.open(DeleteDialogueComponent, {
       data: { targetTeacherName: teacherName },
     });

@@ -76,8 +76,8 @@
                   >
                     <input
                       matInput
-                      name="code"
-                      formControlName="code"
+                      name="Code"
+                      formControlName="programCode"
                       placeholder="Enter Code"
                     />
                   </mat-form-field>
@@ -254,7 +254,7 @@
                         *ngFor="let course of courses"
                         [value]="course"
                       >
-                        {{ course }}
+                        {{ course.courseName }}
                       </mat-option>
                     </mat-select>
                     <mat-error>Field must not be empty</mat-error>

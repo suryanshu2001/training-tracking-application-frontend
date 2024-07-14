@@ -34,15 +34,15 @@ export class StudentsComponent {
   displayedColumns: string[] = [
     'actions',
     'studentCode',
-    'studentName',
-    'emailID',
+    'name',
+    'email',
   ];
 
   ngOnInit(): void {
     this.addStudentReactiveForm = new FormGroup({
       studentCode: new FormControl(null, Validators.required),
-      studentName: new FormControl(null, Validators.required),
-      emailID: new FormControl(null, [Validators.required, Validators.email]),
+      name: new FormControl(null, Validators.required),
+      email: new FormControl(null, [Validators.required, Validators.email]),
     });
   }
 

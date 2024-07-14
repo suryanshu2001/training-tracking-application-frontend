@@ -51,8 +51,8 @@ export class ProgramsComponent implements OnInit {
   ngOnInit(): void {
     this.courseTableData.getCourses().subscribe({
       next: (data) => {
-        for (const obj of data) {
-          this.courses.push(obj.course);
+        for (const course of data) {
+          this.courses.push(course);
         }
       },
       error: (err) => {
@@ -61,7 +61,7 @@ export class ProgramsComponent implements OnInit {
     });
 
     this.addProgramsReactiveForm = new FormGroup({
-      code: new FormControl(null, Validators.required),
+      programCode: new FormControl(null, Validators.required),
       programName: new FormControl(null, Validators.required),
       theoryTime: new FormControl(null, Validators.required),
       practiceTime: new FormControl(null, Validators.required),
@@ -79,7 +79,7 @@ export class ProgramsComponent implements OnInit {
   }
 
   onSubmit() {
-    // console.log(this.addProgramsReactiveForm.value);
+    console.log(this.addProgramsReactiveForm.value);
     if (this.addProgramsReactiveForm.valid) {
       this.programService
         .addPrograms(this.addProgramsReactiveForm.value)

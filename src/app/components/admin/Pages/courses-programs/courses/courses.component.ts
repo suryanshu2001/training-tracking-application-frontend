@@ -69,7 +69,7 @@ export class CoursesComponent {
   }
 
   protected onSubmit() {
-    // console.log(this.addCourseReactiveForm.value);
+    console.log(this.addCourseReactiveForm.value);
     if (this.addCourseReactiveForm.valid) {
       this.courseTableData
         .addCourse(this.addCourseReactiveForm.value)

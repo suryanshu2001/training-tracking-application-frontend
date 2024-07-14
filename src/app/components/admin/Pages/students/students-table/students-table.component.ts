@@ -53,8 +53,8 @@ export class StudentsTableComponent implements OnInit, OnChanges {
   ngOnInit(): void {
     this.editStudentReactiveForm = new FormGroup({
       studentCode: new FormControl(null, Validators.required),
-      studentName: new FormControl(null, Validators.required),
-      emailID: new FormControl(null, [Validators.required, Validators.email]),
+      name: new FormControl(null, Validators.required),
+      email: new FormControl(null, [Validators.required, Validators.email]),
     });
   }
   // Search Filter
@@ -97,10 +97,10 @@ export class StudentsTableComponent implements OnInit, OnChanges {
     });
   }
 
-  saveStudents(row: StudentTableData) {
+  saveStudents(row: any) {
     if (this.editStudentReactiveForm.valid) {
       this.studentService
-        .editStudent(row.id, this.editStudentReactiveForm.value)
+        .editStudent(row.studentId,this.editStudentReactiveForm.value)
         .subscribe({
           next: (data) => {
             this.editingRowID = null;
@@ -124,7 +124,7 @@ export class StudentsTableComponent implements OnInit, OnChanges {
     this.editStudentReactiveForm.reset();
   }
 
-  protected deleteStudent(id: string, studentName: string) {
+  protected deleteStudent(id: number, studentName: string) {
     const dialogRef = this._dialog.open(DeleteDialogueComponent, {
       data: { targetStudentName: studentName },
     });

@@ -73,7 +73,7 @@ export class CoursesTableComponent implements OnInit {
     'theoryTime',
     'practiceTime',
     'description',
-    'addTopics',
+    'topics',
   ];
 
   topicsData: any[] = [];
@@ -189,16 +189,13 @@ export class CoursesTableComponent implements OnInit {
   }
 
   // getRemaingTopics
-  getRemainingTopics(topics: any[]): string {
-    const remainingTopics = topics.slice(3);
-    return remainingTopics
-      .map((topic, index) => `${index + 1}. ${topic.topicName}`)
-      .join('\n');
+  getExtraTopicsTooltip(topics: any[]): string {
+    return topics.map((topic) => topic.topicName).join(', ');
   }
 
   // routing
   navigateToTopics(row: any) {
-    const routerLink = ['admin', 'home', 'topics', row.code];
+    const routerLink = ['admin', 'home', 'topics',row.code];
     this.router.navigate(routerLink, { state: row });
   }
 }

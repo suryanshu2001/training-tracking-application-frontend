@@ -14,7 +14,7 @@
               </mat-icon>
               <!--(click)="openDeleteDialog(row.id)"  -->
               <mat-icon
-                (click)="deletePrograms(row.id, row.code, row.programName)"
+                (click)="deletePrograms(row.programId, row.programCode, row.programName)"
                 ><span class="material-icons-outlined"> delete </span></mat-icon
               >
             </div>
@@ -23,7 +23,7 @@
                 <mat-icon
                   ><span
                     class="material-icons-outlined"
-                    (click)="savePrograms(row.id)"
+                    (click)="savePrograms(row.programId)"
                   >
                     done
                   </span></mat-icon
@@ -43,7 +43,7 @@
             <ng-container *ngIf="i != editingRowID; else editMode">
               <!-- (click)="navigateToTopics(row)" -->
               <div class="code">
-                {{ row.code }}
+                {{ row.ProgramCode }}
               </div>
             </ng-container>
             <ng-template #editMode>
@@ -54,7 +54,7 @@
               >
                 <input
                   matInput
-                  formControlName="code"
+                  formControlName="programCode"
                   placeholder="Enter Code"
                 />
               </mat-form-field>
@@ -224,7 +224,7 @@
               <span
                 *ngFor="let course of row.courses.slice(0, 2); let last = last"
               >
-                {{ course }}{{ last ? "" : ", " }}
+                {{ course.courseName }}{{ last ? "" : ", " }}
               </span>
               <ng-container *ngIf="row.courses.length > 2">
                 <span
@@ -252,7 +252,7 @@
                   placeholder="Select Course"
                 >
                   <mat-option *ngFor="let course of courses" [value]="course">
-                    {{ course }}
+                    {{ course.courseName }}
                   </mat-option>
                 </mat-select>
                 <mat-error>Field must not be empty</mat-error>

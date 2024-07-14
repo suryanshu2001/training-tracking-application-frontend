@@ -17,18 +17,26 @@ import {
   NgForm,
 } from '@angular/forms';
 import { TopicsTableDataService } from 'src/app/components/shared/Services/topics-table-data.service';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { CoursesTableComponent } from '../courses-table/courses-table.component';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatInputModule } from '@angular/material/input';
+import { MatDividerModule } from '@angular/material/divider';
 @Component({
   selector: 'app-topics',
   standalone: true,
   imports: [
     CommonModule,
     MatIconModule,
+    MatDividerModule,
     MatButtonModule,
-    TopicsTableComponent,
-    ReactiveFormsModule,
+    MatInputModule,
     MatTableModule,
-    MatFormFieldModule,
+    ReactiveFormsModule,
+    MatMenuModule,
     OverlayModule,
+    TopicsTableComponent,
+    MatTooltipModule,
   ],
   templateUrl: './topics.component.html',
   styleUrls: ['./topics.component.scss'],
@@ -46,7 +54,9 @@ export class TopicsComponent implements OnInit {
     'content',
   ];
 
-  selectedCourse!: TableData;
+  selectedCourse!: any;
+
+  selectedCourseId!: number;
 
   isAddTopicsClicked: boolean = false;
 
@@ -54,6 +64,9 @@ export class TopicsComponent implements OnInit {
 
   ngOnInit(): void {
     this.selectedCourse = history.state;
+    // console.log(
+    //   typeof this.selectedCourse.courseId + ' ' + this.selectedCourse.courseId
+    // );
 
     this.addTopicsReactiveForm = new FormGroup({
       order: new FormControl(null, Validators.required),
@@ -73,18 +86,16 @@ export class TopicsComponent implements OnInit {
 
   onSubmit() {
     if (this.addTopicsReactiveForm.valid) {
+      // console.log(this.addTopicsReactiveForm.value);
+
       this.addTopicsData
-        .addTopics(this.selectedCourse.code, this.addTopicsReactiveForm.value)
-        .subscribe({
-          next: (data: any) => {
-            // add snackbar - topics
-          },
-          error: (err: any) => {
-            console.log(err);
-          },
-          complete: () => {
-            this.closeForm();
-          },
+        .addTopics(
+          this.selectedCourse.courseId,
+          this.addTopicsReactiveForm.value
+        )
+        .subscribe((data) => {
+          this.addTopicsReactiveForm.reset();
+          this.isAddTopicsClicked = !this.isAddTopicsClicked;
         });
     }
   }
@@ -99,11 +110,21 @@ export class TopicsComponent implements OnInit {
   }
 
   // 0/40 logic
-  isSummaryOpen = false;
-  isContentOpen = false;
-  lettersTypedDesc: number = 0;
-  onInputChange(event: any) {
-    this.lettersTypedDesc = event.target.value.length;
+  // For Content
+  protected isContentOpen = false;
+  protected lettersTypedContent: number = 0;
+
+  protected onContentInputChange(event: any) {
+    this.lettersTypedContent = event.target.value.length;
+    return;
+  }
+
+  // For Summary
+  protected isSummaryOpen = false;
+  protected lettersTypedSummary: number = 0;
+
+  protected onSummaryInputChange(event: any) {
+    this.lettersTypedSummary = event.target.value.length;
     return;
   }
 }

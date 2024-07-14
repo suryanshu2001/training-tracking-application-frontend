@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatIconModule } from '@angular/material/icon';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import {
@@ -23,6 +23,7 @@ import { DeleteDialogueComponent } from '../../../../../../shared/delete-dialogu
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TopicsData } from 'src/app/components/admin/shared/models/topics-table.model';
 import { UploadMultipleFilesComponent } from './upload-multiple-files/upload-multiple-files.component';
+//import { Topic } from 'src/app/components/admin/shared/models/Topic';
 @Component({
   selector: 'app-topics-table',
   standalone: true,
@@ -42,12 +43,12 @@ import { UploadMultipleFilesComponent } from './upload-multiple-files/upload-mul
 })
 export class TopicsTableComponent implements OnInit {
   constructor(
-    private addTopicsData: TopicsTableDataService,
+    private topicService: TopicsTableDataService,
     private _deleteDialog: MatDialog,
     private dialog: MatDialog
   ) {}
 
-  routedTopic!: string;
+  selectedCourse!: any;
 
   displayedColumns: string[] = [
     'actions',
@@ -60,19 +61,17 @@ export class TopicsTableComponent implements OnInit {
     'files',
   ];
 
-  protected dataSource!: MatTableDataSource<TopicsData>;
+  protected dataSource!: MatTableDataSource<any>;
   protected editTopicsReactiveForm!: FormGroup;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
   ngOnInit(): void {
-    this.getTopicsList();
+    this.selectedCourse = history.state;
+    // console.log(this.selectedCourse);
+    this.getTopicsList(this.selectedCourse.courseId);
 
-    // console.log(history.state);
-    this.routedTopic = history.state.code;
-
-    // reactive form init
     this.editTopicsReactiveForm = new FormGroup({
       order: new FormControl(null, Validators.required),
       topicName: new FormControl(null, Validators.required),
@@ -82,63 +81,38 @@ export class TopicsTableComponent implements OnInit {
         Validators.required,
         Validators.maxLength(40),
       ]),
-      content: new FormControl(null, [Validators.required]),
-      files: new FormControl(null),
+      content: new FormControl(null, [
+        Validators.required,
+        Validators.maxLength(40),
+      ]),
     });
   }
   // READ DATA
-  protected getTopicsList() {
-    this.addTopicsData.getTopics().subscribe({
-      next: (data: any) => {
-        console.log(data);
-        const topicArrays = [];
-        for (const obj of data) {
-          if (
-            obj.topic &&
-            Array.isArray(obj.topic) &&
-            obj.code == this.routedTopic
-          ) {
-            topicArrays.push(...obj.topic);
-          }
-        }
-        // put the topic array in the data source
-        this.dataSource = new MatTableDataSource(topicArrays);
-        // console.log(this.dataSource);
-        this.dataSource.sort = this.sort;
-        this.dataSource.paginator = this.paginator;
-      },
-      error: (err: any) => {
-        console.log(err);
-      },
-      complete: () => {
-        console.log('data has been fetched !');
-      },
+  protected getTopicsList(courseId: number) {
+    //this.dataSource=this.selectedCourse.topics;
+    this.topicService.getTopicByCourseId(courseId).subscribe((data) => {
+      this.dataSource = new MatTableDataSource(data);
+      this.dataSource.paginator = this.paginator;
+      this.dataSource.sort = this.sort;
     });
   }
 
   // DELETE DATA
-  deleteTopics(topicName: string) {
-    const dialogRef = this._deleteDialog.open(DeleteDialogueComponent, {
-      data: { targetTopicName: topicName },
-    });
+  deleteTopics(row: any) {
+    // console.log(row.topicId);
+    // const dialogRef = this._deleteDialog.open(DeleteDialogueComponent, {
+    //   data: {
+    //     targetTopicName: row.topicName,
+    //   },
+    // });
 
-    dialogRef.afterClosed().subscribe((result: boolean) => {
-      if (result) {
-        // console.log(topicName + 'topicName coming from topic-table-component');
-        this.addTopicsData.deleteTopics(this.routedTopic, topicName).subscribe({
-          next: (data: any) => {
-            console.log('emp deleted');
-            this.getTopicsList();
-          },
-          error: (err: any) => {
-            console.log(err);
-          },
-          complete: () => {
-            console.log('data has been deleted !');
-          },
-        });
-      }
-    });
+    // dialogRef.afterClosed().subscribe((result) => {
+    //   if (result) {
+    //     // this.topicService.deleteTopics(row.topicId).subscribe((data) => {
+    //     //   this.getTopicsList(this.selectedCourse.courseId);
+    //     // });
+    //   }
+    // });
   }
 
   // EDIT DATA
@@ -146,53 +120,39 @@ export class TopicsTableComponent implements OnInit {
   protected editTopics(i: number, row: any) {
     // console.log(row);
     this.editingRowID = i;
-    this.populateEditFields(row);
-  }
-
-  protected populateEditFields(row: any) {
-    // console.log(row.order);
-    this.editTopicsReactiveForm.patchValue({
-      order: row.order,
-      topicName: row.topicName,
-      theoryTime: row.theoryTime,
-      practiceTime: row.practiceTime,
-      summary: row.summary,
-      content: row.content,
-    });
+    this.editTopicsReactiveForm.patchValue(row);
   }
 
   protected cancelEditing() {
     this.editingRowID = null;
   }
 
-  protected saveTopics(row: any, oldTopicName: string) {
-    // console.log(row.id);
+  protected saveTopics(row: any) {
     if (this.editTopicsReactiveForm.valid) {
-      this.addTopicsData
-        .editTopics(
-          this.routedTopic,
-          this.editTopicsReactiveForm.value,
-          oldTopicName
-        )
-        .subscribe({
-          next: (data: any) => {
-            console.log(data);
-            this.editingRowID = null;
-            this.getTopicsList();
-          },
+      this.topicService
+        .editTopics(row.topicId, {...this.editTopicsReactiveForm.value,topicId:row.topicId})
+        .subscribe((data) => {
+          this.editingRowID = null;
+          this.getTopicsList(this.selectedCourse.courseId);
         });
     }
   }
+// Open dialog for file upload
+protected onFilesUploadClick(topicId: number) {
+  const dialogRef = this.dialog.open(UploadMultipleFilesComponent, {
+    width: '600px', // Adjust width as needed
+    data: { topicId: topicId },
+  });
 
-  onFilesUploadClick() {
-    //Upload Dialog
-    this.openUploadDialog();
-  }
+  dialogRef.afterClosed().subscribe(result => {
+    console.log('The dialog was closed');
+    // Handle any actions after dialog closes
+  });
+}
 
-  openUploadDialog(): void {
-    const dialogRef = this.dialog.open(UploadMultipleFilesComponent, {
-      width: '800px',
-      height: '400px',
-    });
-  }
+getFileNamesTooltip(files: any[]): string {
+
+  //console.log(files.map((file) => file.fileName).join('\n')) ;
+  return files.map((file) => file.fileName).join('\n');
+}
 }

@@ -1,10 +1,10 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, Inject, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatListModule } from '@angular/material/list';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatDialog } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { FileUploadDialogComponent } from './file-upload-dialog/file-upload-dialog.component';
 
@@ -17,9 +17,11 @@ import { FileUploadDialogComponent } from './file-upload-dialog/file-upload-dial
 })
 export class UploadMultipleFilesComponent {
   files: File[] = [];
+  id!: number;
+  username: string="user";
   @ViewChild('fileInput') fileInput: any;
 
-  constructor(public dialog: MatDialog, private router: Router) {}
+  constructor(public dialog: MatDialog, private router: Router,@Inject(MAT_DIALOG_DATA) public data: any) {}
 
   onFileSelected(event: any): void {
     const selectedFiles = event.target.files;
@@ -36,20 +38,25 @@ export class UploadMultipleFilesComponent {
   openDialog(): void {
     const dialogRef = this.dialog.open(FileUploadDialogComponent, {
       width: '400px',
-      data: this.files
+      data: { files: this.files, id: this.data.topicId, username: this.username } // Pass data to dialog as an object
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      console.log('The dialog was closed');
+      if (result) {
+        console.log('Dialog result:', result); // Handle dialog result
+        // You can update component state with result data here if needed
+      } else {
+        console.log('Dialog was closed');
+      }
     });
   }
 
   onCancel(){
-    //cancel 
+    //cancel
     this.dialog.closeAll();
   }
 
-  
+
   handleUploadClick(event: MouseEvent): void{
     event.preventDefault();
     this.fileInput.nativeElement.click();
@@ -62,15 +69,15 @@ export class UploadMultipleFilesComponent {
       this.handleDroppedFiles(files);
     }
   }
-  
+
   onDragOver(event: DragEvent): void {
     event.preventDefault();
   }
-  
+
   private handleDroppedFiles(files: FileList): void {
     for (let i = 0; i < files.length; i++) {
       this.files.push(files[i]);
     }
   }
-  
+
 }

@@ -94,7 +94,7 @@
               </ng-container>
 
               <!-- Student Name  -->
-              <ng-container matColumnDef="studentName">
+              <ng-container matColumnDef="name">
                 <th mat-header-cell *matHeaderCellDef>
                   <span class="mat-subtitle-1" style="font-weight: 500"
                     >Student Name</span
@@ -107,7 +107,7 @@
                   >
                     <input
                       matInput
-                      formControlName="studentName"
+                      formControlName="name"
                       placeholder="Enter Student Name"
                     />
                     <mat-error>Field must not be empty</mat-error>
@@ -116,7 +116,7 @@
               </ng-container>
 
               <!-- Email ID Column -->
-              <ng-container matColumnDef="emailID">
+              <ng-container matColumnDef="email">
                 <th mat-header-cell *matHeaderCellDef>
                   <span class="mat-subtitle-1" style="font-weight: 500"
                     >Email ID</span
@@ -129,7 +129,7 @@
                   >
                     <input
                       matInput
-                      formControlName="emailID"
+                      formControlName="email"
                       placeholder="Enter Email ID"
                     />
                     <mat-error>Must be a valid email</mat-error>

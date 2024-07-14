@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class StudentTableService {
-  Index: string = 'http://localhost:3000/students';
+  Index: string = 'http://localhost:5050/students';
 
   constructor(private _http: HttpClient) {}
 
@@ -18,11 +18,11 @@ export class StudentTableService {
     return this._http.get(`${this.Index}`);
   }
 
-  editStudent(id: string, data: any): Observable<any> {
-    return this._http.patch(`${this.Index}/${id}`, data);
+  editStudent(id:number,data: any): Observable<any> {
+    return this._http.put(`${this.Index}/${id}`, data);
   }
 
-  deleteStudents(id: string): Observable<any> {
+  deleteStudents(id: number): Observable<any> {
     return this._http.delete(`${this.Index}/${id}`);
   }
 }

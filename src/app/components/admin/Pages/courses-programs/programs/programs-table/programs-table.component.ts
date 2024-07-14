@@ -53,15 +53,15 @@ export class ProgramsTableComponent {
     'courses',
   ];
 
-  protected courses: string[] = [];
+  protected courses: any[] = [];
 
   ngOnInit(): void {
     this.getProgramsList();
 
     this.coursesService.getCourses().subscribe({
       next: (data: any) => {
-        for (const obj of data) {
-          this.courses.push(obj.course);
+        for (const course of data) {
+          this.courses.push(course);
         }
       },
       error: (err: any) => {
@@ -69,7 +69,7 @@ export class ProgramsTableComponent {
       },
     });
     this.editProgramsReactiveForm = new FormGroup({
-      code: new FormControl(null, Validators.required),
+      programCode: new FormControl(null, Validators.required),
       programName: new FormControl(null, Validators.required),
       theoryTime: new FormControl(null, Validators.required),
       practiceTime: new FormControl(null, Validators.required),
@@ -97,7 +97,7 @@ export class ProgramsTableComponent {
   editPrograms(id: number, row: TopicsData) {
     this.editingRowID = id;
     this.editProgramsReactiveForm.patchValue(row);
-    // console.log(this.editProgramsReactiveForm.value);
+    console.log(this.editProgramsReactiveForm.value);
   }
 
   deletePrograms(id: string, code: string, programName: string) {
@@ -119,7 +119,7 @@ export class ProgramsTableComponent {
     });
   }
 
-  savePrograms(id: string) {
+  savePrograms(id: number) {
     if (this.editProgramsReactiveForm.valid) {
       this.programService
         .editProgram(id, this.editProgramsReactiveForm.value)
