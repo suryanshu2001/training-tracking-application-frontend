@@ -122,6 +122,7 @@
                     <input
                       matInput
                       name="theoryTime"
+                      type="number"
                       formControlName="theoryTime"
                       placeholder="0 hr"
                     />
@@ -145,6 +146,7 @@
                     <input
                       matInput
                       name="practiceTime"
+                      type="number"
                       formControlName="practiceTime"
                       placeholder="0 hr"
                     />
@@ -252,7 +254,7 @@
                     >
                       <mat-option
                         *ngFor="let course of courses"
-                        [value]="course"
+                        [value]="{courseId:course.courseId}"
                       >
                         {{ course.courseName }}
                       </mat-option>

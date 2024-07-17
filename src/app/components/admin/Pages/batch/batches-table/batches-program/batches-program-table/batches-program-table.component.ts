@@ -29,6 +29,8 @@ import {
 } from '@angular/animations';
 import { BatchesProgramCoursesAddComponent } from '../../batches-program-courses/batches-program-courses-add/batches-program-courses-add.component';
 import { BatchesProgramCoursesTableComponent } from '../../batches-program-courses/batches-program-courses-table/batches-program-courses-table.component';
+import { MatTableDataSource } from '@angular/material/table';
+import { BatchProgramCoursesService } from 'src/app/components/shared/Services/batch-program-courses.service';
 @Component({
   selector: 'app-batches-program-table',
   standalone: true,
@@ -57,26 +59,33 @@ export class BatchesProgramTableComponent implements OnInit, OnChanges {
   editingRowID: number = -1;
   displayedColumns: string[] = ['actions', 'code', 'programName', 'students'];
 
-  programNames: string[] = [];
+  programs: any[] = [];
   programCodes: string[] = [];
-  students: string[] = [];
+  students: any[] = [];
 
-  programCodeForChild!: string;
+  programIdForChild!: number;
+  batchPrograms: any[]=[];
+  batchProgramCourses: any[]=[];
+  selectedBatchProgramCourseId!: number;
+  programCourses!: any[];
+  dataSource!: MatTableDataSource<any>;
 
-  dataSource!: any;
 
   constructor(
     private batchProgramService: BatchProgramsService,
+    private batchProgramCourseService: BatchProgramCoursesService,
     private studentService: StudentTableService,
     private programService: ProgramsTableService,
     private _dialog: MatDialog
-  ) {}
+  ) {
+
+  }
 
   ngOnInit(): void {
     this.getStudents();
     this.getPrograms();
     this.editBatchProgramReactiveForm = new FormGroup({
-      code: new FormControl(null, Validators.required),
+      programCode: new FormControl(null, Validators.required),
       programName: new FormControl(null, Validators.required),
       students: new FormControl(null, Validators.required),
     });
@@ -86,8 +95,10 @@ export class BatchesProgramTableComponent implements OnInit, OnChanges {
   getStudents() {
     this.studentService.getStudents().subscribe({
       next: (value) => {
+        //console.log("students are: ",value)
         for (const obj of value) {
-          this.students.push(obj.studentName);
+          //console.log("student object are: ",obj)
+          this.students.push(obj);
         }
       },
     });
@@ -96,26 +107,29 @@ export class BatchesProgramTableComponent implements OnInit, OnChanges {
   getPrograms() {
     this.programService.getPrograms().subscribe({
       next: (value) => {
+        //console.log("programs are: ",value)
         for (const obj of value) {
-          this.programNames.push(obj.programName);
-          this.programCodes.push(obj.code);
+          //console.log("program object are: ",obj)
+          this.programs.push(obj);
+          this.programCodes.push(obj.programCode);
         }
       },
     });
   }
 
   onProgramChange(event: any) {
-    const index = this.programNames.indexOf(event.value);
-    const code = this.programCodes[index];
-    this.editBatchProgramReactiveForm.get('code')?.setValue(code);
+    console.log("event got:",event);
+    this.editBatchProgramReactiveForm.get('programCode')?.setValue(event.value.programCode);
   }
 
   // from parent
-  @Input() batchCode: string = '';
+  @Input() batchId!: number;
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['batchCode'] && this.batchCode) {
+    //console.log("batch id changed:",this.batchId)
+    if (changes['batchId'] && this.batchId) {
       this.getBatchPrograms();
     }
+
   }
 
   editBatchProgram(id: number, row: any) {
@@ -127,7 +141,7 @@ export class BatchesProgramTableComponent implements OnInit, OnChanges {
   deleteBatchProgram(row: any) {
     const dialogRef = this._dialog.open(DeleteDialogueComponent, {
       data: {
-        targetBatchCode_programs: this.batchCode,
+        //targetBatchCode_programs: this.batchCode,
         targetBatchProgramName: row.programName,
         targetBatchProgramCode: row.code,
       },
@@ -135,31 +149,21 @@ export class BatchesProgramTableComponent implements OnInit, OnChanges {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        this.batchProgramService
-          .getBatchProgramByBatchCode(this.batchCode)
-          .subscribe({
-            next: (value) => {
-              value[0].batchPrograms = value[0].batchPrograms.filter(
-                (obj: any) => obj.id != row.id
-              );
-              // console.log(row);
-              // console.log(value[0].id);
-              // console.log(value[0]);
-              this.batchProgramService
-                .updateBatchProgram(value[0].id, value[0])
-                .subscribe({
-                  next: () => {
-                    console.log('DELETED');
-                    this.getBatchPrograms();
-                  },
-                });
-            },
-          });
+        this.deleteBatchProgramCourseProgram(row);
       }
     });
   }
 
-  saveBatchProgram(row: any) {}
+  saveBatchProgram(row: any) {
+    console.log("row here:",row)
+    console.log("payload",this.editBatchProgramReactiveForm)
+    this.batchProgramCourseService.updateBatchProgramCourse(row.batchProgramCourseId,this.editBatchProgramReactiveForm.value).subscribe({
+      next: (value) => {
+        console.log("updated batchProgram:",value)
+      }
+    })
+    window.location.reload();
+  }
 
   cancelEditing() {
     this.editingRowID = -1;
@@ -167,17 +171,34 @@ export class BatchesProgramTableComponent implements OnInit, OnChanges {
   }
 
   getBatchPrograms() {
-    this.batchProgramService
-      .getBatchProgramByBatchCode(this.batchCode)
-      .subscribe({
-        next: (value) => {
-          for (const obj of value) {
-            console.log(obj.batchPrograms);
-            this.dataSource = obj.batchPrograms;
-          }
-        },
-      });
+    this.batchProgramCourseService.getAllProgramsByBatch(this.batchId).subscribe({
+      next: (value) => {
+        //this.dataSource=value;
+        this.dataSource = new MatTableDataSource(value); // Initialize the dataSource with the fetched value
+        //this.getPrograms();
+
+      },
+      error: (err) => {
+        console.error("Error fetching batch programs:", err);
+      }
+    });
+
+    //console.log("All DataSource:",this.dataSource)
   }
+
+  // getStudentsByBatchAndProgram(programId: number){
+  //   let students;
+  //   this.batchProgramCourseService.getAllStudentsByBatchAndProgram(this.batchId,programId).subscribe({
+  //     next: (value) => {
+  //      students= value;
+  //     },
+  //     error: (err) => {
+  //       console.error("Error fetching batch programs students:", err);
+  //     }
+  //   });
+  //   return students;
+  // }
+
   getRemainingStudentsWithNumbers(students: string[]): string {
     const remainingStudent = students.slice(2);
     const numberedStudents = remainingStudent.map(
@@ -185,6 +206,8 @@ export class BatchesProgramTableComponent implements OnInit, OnChanges {
     );
     return numberedStudents.join('\n'); // Join with a newline character
   }
+
+
 
   isAddClicked: boolean = false;
   isTableClicked: boolean = false;
@@ -195,21 +218,38 @@ export class BatchesProgramTableComponent implements OnInit, OnChanges {
   rowIndexForChild!: number;
 
   toggleAdd(row: any, i: number) {
+    console.log("row to be added:",row)
     this.expandedRowAdd = this.expandedRowAdd == row ? null : row;
     this.isAddClicked = !this.isAddClicked;
-    this.programCodeForChild = row.code;
+    this.programIdForChild = row.programId;
+    this.programCourses=row.courses;
+    this.batchId=row.batchId;
+    this.selectedBatchProgramCourseId=row.batchProgramCourseId;
+    this.getBatchPrograms;
     this.rowIndexForChild = i;
+    //this.batchProgramCourseService.setBatchId(row.batchId)
   }
   toggleTable(row: any) {
+    console.log("expand icon clicked")
     this.expandedRowTable = this.expandedRowTable == row ? null : row;
     this.isTableClicked = !this.isTableClicked;
-    this.programCodeForChild = row.code;
+    this.programIdForChild = row.programId;
+    this.batchProgramCourseService.setProgramId(row.programId);
+    //this.batchProgramCourseService.setBatchId(row.batchId)
   }
 
   recieveIsAddClicked(value: boolean) {
     this.expandedRowTable = null;
     this.expandedRowAdd = null;
-
     this.isAddClicked = value;
+  }
+
+  deleteBatchProgramCourseProgram(row: any){
+    this.batchProgramCourseService.deleteBatchProgramCourseProgram(row.batchProgramCourseId).subscribe({
+      next: (value) => {
+        console.log("deleted batchProgramCourseProgram:",value)
+        window.location.reload();
+      }
+    })
   }
 }

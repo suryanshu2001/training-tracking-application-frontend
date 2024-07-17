@@ -1,7 +1,7 @@
 <div class="batch-program-courses-table-component">
   <div class="table-responsive">
     <table mat-table [dataSource]="dataSource" matSort>
-      <form [formGroup]="editBatchProgramCourses">
+      <form [formGroup]="editBatchProgramCoursesReactiveForm">
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Actions</th>
           <td mat-cell *matCellDef="let row; let i = index">
@@ -39,12 +39,12 @@
           <td mat-cell *matCellDef="let row; let i = index">
             <ng-container *ngIf="i != editingRowID; else editMode">
               <div>
-                {{ row.code }}
+                {{ row.course.code }}
               </div>
             </ng-container>
             <ng-template #editMode>
               <mat-form-field appearance="outline" class="dense-form-field-5">
-                <input matInput formControlName="code" />
+                <input matInput formControlName="code" readonly/>
                 <mat-error>Field must not be empty</mat-error>
               </mat-form-field>
             </ng-template>
@@ -56,7 +56,7 @@
           <td mat-cell *matCellDef="let row; let i = index">
             <ng-container *ngIf="i != editingRowID; else editMode">
               <div>
-                {{ row.courseName }}
+                {{ row.course.courseName }}
               </div>
             </ng-container>
             <ng-template #editMode>
@@ -65,6 +65,7 @@
                   matInput
                   formControlName="courseName"
                   placeholder="Enter Course Name"
+                  readonly
                 />
                 <mat-error>Field must not be empty</mat-error>
               </mat-form-field>
@@ -79,16 +80,16 @@
           <td mat-cell *matCellDef="let row; let i = index">
             <ng-container *ngIf="i != editingRowID; else editMode">
               <div>
-                {{ row.teacherName }}
+                {{ row.teacher.name }}
               </div>
             </ng-container>
             <ng-template #editMode>
               <mat-form-field appearance="outline" class="dense-form-field-5">
-                <input
-                  matInput
-                  formControlName="teacherName"
-                  placeholder="Enter Teacher Name"
-                />
+                <mat-select formControlName="teacherName" placeholder="Select Teacher">
+                  <mat-option *ngFor="let teacher of row.course.teachers" [value]="teacher">
+                    {{ teacher.name }}
+                  </mat-option>
+                </mat-select>
                 <mat-error>Field must not be empty</mat-error>
               </mat-form-field>
             </ng-template>

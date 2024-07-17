@@ -41,11 +41,12 @@ export class BatchComponent implements OnInit {
     this.addBatchReactiveForm = new FormGroup({
       batchCode: new FormControl(null, Validators.required),
       batchName: new FormControl(null, Validators.required),
-      batchStartDate: new FormControl(null, Validators.required),
+      startDate: new FormControl(null, Validators.required),
     });
   }
   onSubmit() {
     if (this.addBatchReactiveForm.valid) {
+      console.log("batch submitted")
       this.batchService.addBatch(this.addBatchReactiveForm.value).subscribe({
         next: () => {
           this.isBatchClicked = !this.isBatchClicked;
@@ -61,4 +62,9 @@ export class BatchComponent implements OnInit {
     this.addBatchReactiveForm.reset();
     this.isBatchClicked = !this.isBatchClicked;
   }
+
+  logToConsole(): void {
+    console.log('Button clicked!');
+  }
+
 }

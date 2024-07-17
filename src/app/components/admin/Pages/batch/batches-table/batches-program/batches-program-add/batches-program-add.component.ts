@@ -16,6 +16,7 @@ import {
   BatchLayer2Data,
   BatchPrograms,
 } from 'src/app/components/admin/shared/models/batch-layer2.model';
+import { BatchProgramCoursesService } from 'src/app/components/shared/Services/batch-program-courses.service';
 
 @Component({
   selector: 'app-batches-program-add',
@@ -28,10 +29,11 @@ export class BatchesProgramAddComponent implements OnInit {
   addBatchProgramReactiveForm!: FormGroup;
 
   // comes from parent
-  @Input() batchCode!: string;
+  @Input() batchId!: number;
 
   programCodes: string[] = [];
-  programNames: string[] = [];
+  programs: any[] = [];
+  enrolledBatches!: any[];
 
   students: any[] = [];
 
@@ -40,7 +42,8 @@ export class BatchesProgramAddComponent implements OnInit {
   constructor(
     private programService: ProgramsTableService,
     private studentService: StudentTableService,
-    private batchProgramsService: BatchProgramsService
+    private batchProgramsService: BatchProgramsService,
+    private batchProgramCourseService: BatchProgramCoursesService
   ) {}
 
   ngOnInit(): void {
@@ -49,7 +52,7 @@ export class BatchesProgramAddComponent implements OnInit {
     this.getStudents();
     this.addBatchProgramReactiveForm = new FormGroup({
       code: new FormControl(null, Validators.required),
-      programName: new FormControl(null, Validators.required),
+      program: new FormControl(null, Validators.required),
       students: new FormControl(null, Validators.required),
     });
   }
@@ -58,8 +61,8 @@ export class BatchesProgramAddComponent implements OnInit {
     this.programService.getPrograms().subscribe({
       next: (res: any) => {
         for (const obj of res) {
-          this.programCodes.push(obj.code);
-          this.programNames.push(obj.programName);
+          this.programCodes.push(obj.programCode);
+          this.programs.push(obj);
         }
 
         // console.log(this.programCodes + '|' + this.programNames);
@@ -68,6 +71,7 @@ export class BatchesProgramAddComponent implements OnInit {
         console.log(err);
       },
     });
+    this.getBatchPrograms();
   }
 
   getStudents() {
@@ -85,7 +89,7 @@ export class BatchesProgramAddComponent implements OnInit {
   }
 
   onProgramChange(event: any) {
-    const index = this.programNames.indexOf(event.value);
+    const index = this.programs.indexOf(event.value);
     const code = this.programCodes[index];
     this.addBatchProgramReactiveForm.get('code')?.setValue(code);
   }
@@ -93,26 +97,25 @@ export class BatchesProgramAddComponent implements OnInit {
   onSubmit() {
     if (this.addBatchProgramReactiveForm.valid) {
       const batchProgramForm = {
-        ...this.addBatchProgramReactiveForm.value,
-        id: crypto.randomUUID(),
+        ...this.addBatchProgramReactiveForm.value
       };
 
-      this.batchProgramsService.getBatchProgram().subscribe({
-        next: (res: any[]) => {
-          const batchProgram = res.find(
-            (obj) => obj.batchCode === this.batchCode
-          );
+      this.batchProgramCourseService.getAllProgramsByBatch(this.batchId).subscribe({
+        next: (value) => {
+          const program = value.find((x:any) => x.programCode === batchProgramForm.code);
 
-          if (batchProgram) {
+
+          // if (program) {
+            if (false) {
+            console.log("if executed")
             // If the batchProgram exists, update its batchPrograms array
             const updatedBatchProgram = {
-              ...batchProgram,
-              id: crypto.randomUUID(),
-              batchPrograms: [...batchProgram.batchPrograms, batchProgramForm],
+              ...program,
+              batchPrograms: [...program, batchProgramForm],
             };
 
-            this.batchProgramsService
-              .updateBatchProgram(batchProgram.id, updatedBatchProgram)
+            this.batchProgramCourseService
+              .updateBatchProgramCourse(program.id,updatedBatchProgram)
               .subscribe({
                 next: () => {
                   console.log('Batch program updated successfully');
@@ -125,18 +128,22 @@ export class BatchesProgramAddComponent implements OnInit {
 
             this.addBatchProgramReactiveForm.reset();
           } else {
+            console.log("else executed")
             // If the batchProgram does not exist, create a new one
             const newBatchProgram: any = {
-              batchCode: this.batchCode,
-              batchPrograms: [batchProgramForm],
+              batch:{batchId: this.batchId},
+              program:{programId:batchProgramForm.program.programId},
+              students:batchProgramForm.students
             };
 
-            this.batchProgramsService
-              .addBatchPrograms(newBatchProgram)
-              .subscribe({
+            console.log("new batch-program-student:",batchProgramForm,newBatchProgram)
+            this.batchProgramCourseService
+              .addBatchProgramCourses(newBatchProgram)
+                .subscribe({
                 next: (res: any) => {
-                  console.log(this.batchCode);
+                  console.log(this.batchId);
                   this.closeForm();
+                  window.location.reload();
                 },
                 error: (err) => {
                   console.log(err);
@@ -150,6 +157,26 @@ export class BatchesProgramAddComponent implements OnInit {
         },
       });
     }
+  }
+
+  getBatchPrograms() {
+    this.batchProgramCourseService.getAllProgramsByBatch(this.batchId).subscribe({
+      next: (value) => {
+        //this.dataSource=value;
+        this.enrolledBatches = value; // Initialize the dataSource with the fetched value
+        //this.getPrograms();
+        const arr2: any[] = this.enrolledBatches; // Get the actual data array
+
+      this.programs = this.programs.filter(program =>
+        !arr2.some(data => program.programId === data.programId)
+      );
+      },
+      error: (err) => {
+        console.error("Error fetching batch programs:", err);
+      }
+    });
+
+    //console.log("All DataSource:",this.dataSource)
   }
 
   // send boolean value from child to parent to let them know that the add program form must be closed

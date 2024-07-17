@@ -68,18 +68,21 @@ export class BatchesTableComponent implements OnInit {
   ];
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+
   ngOnInit(): void {
     console.log(this.editingRowID);
     this.getBatches();
     this.editBatchReactiveForm = new FormGroup({
       batchCode: new FormControl(null, Validators.required),
       batchName: new FormControl(null, Validators.required),
-      batchStartDate: new FormControl(null, Validators.required),
+      startDate: new FormControl(null, Validators.required),
     });
   }
+
   getBatches() {
     this.batchService.getBatches().subscribe({
       next: (data) => {
+        //console.log("got batches: ",data)
         this.dataSource = new MatTableDataSource<BatchLayer1Data>(data);
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
@@ -98,9 +101,17 @@ export class BatchesTableComponent implements OnInit {
     this.editingRowID = -1;
     this.editBatchReactiveForm.reset();
   }
-  saveBatch(row: BatchLayer1Data) {}
+  saveBatch(row: any) {
+    console.log("row batch to update",row)
+    this.batchService.updateBatch(row.batchId,this.editBatchReactiveForm.value).subscribe({
+      next: (data) => {
+        console.log("updated batch",data)
+        window.location.reload();
+      }
+    })
+  }
 
-  deleteBatch(row: BatchLayer1Data) {
+  deleteBatch(row: any) {
     const dialogRef = this._dialog.open(DeleteDialogueComponent, {
       data: {
         targetBatchCode: row.batchCode,
@@ -109,7 +120,7 @@ export class BatchesTableComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        this.batchService.deleteBatch(row.id).subscribe({
+        this.batchService.deleteBatch(row.batchId).subscribe({
           next: (data) => {
             this.getBatches();
           },
@@ -123,20 +134,22 @@ export class BatchesTableComponent implements OnInit {
 
   // toggleRow
   isAddClicked: boolean = false;
-  batchCodeForChild!: string;
+  batchIdForChild!: number;
 
   toggleAdd(row: any) {
     this.expandedRowAdd = this.expandedRowAdd == row ? null : row;
     this.isAddClicked = !this.isAddClicked;
-    this.batchCodeForChild = row.batchCode;
+    this.batchIdForChild = row.batchId;
+    this.batchProgramCoursesService.setBatchId(row.batchId)
   }
 
-  isTableClicked: boolean = false;
+  isTableClicked: boolean = true;
   toggleTable(row: any) {
+    console.log("toggle table clicked");
     this.expandedRowTable = this.expandedRowTable == row ? null : row;
     this.isTableClicked = !this.isTableClicked;
-    this.batchCodeForChild = row.batchCode;
-    this.batchProgramCoursesService.setBatchCode(row.batchCode);
+    this.batchIdForChild = row.batchId;
+    this.batchProgramCoursesService.setBatchId(row.batchId);
   }
 
   recieveIsAddClicked(value: boolean) {

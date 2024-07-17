@@ -5,7 +5,7 @@ import { Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class AttendanceService {
-  Index: string = 'http://localhost:3000/attendance';
+  Index: string = 'http://localhost:5050/attendance';
   constructor(private _http: HttpClient) {}
 
   addAttendance(data: any) {

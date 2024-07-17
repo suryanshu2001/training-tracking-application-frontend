@@ -40,7 +40,7 @@
                   >
                 </th>
                 <td mat-cell *matCellDef="let element">
-                  <button mat-icon-button>
+                  <button mat-icon-button type="button" (click)="logToConsole()">
                     <span class="material-symbols-outlined">
                       expand_circle_down
                     </span>
@@ -142,7 +142,7 @@
                     <input
                       matInput
                       [matDatepicker]="picker"
-                      formControlName="batchStartDate"
+                      formControlName="startDate"
                       placeholder="Enter Date"
                     />
                     <mat-hint>MM/DD/YYYY</mat-hint>

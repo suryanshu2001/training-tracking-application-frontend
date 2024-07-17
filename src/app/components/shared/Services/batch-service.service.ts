@@ -13,6 +13,11 @@ export class BatchServiceService {
     return this._http.post(this.Index, data);
   }
 
+  updateBatch(id:number,data: any): Observable<any> {
+    console.log("update callledd");
+    return this._http.put(`http://localhost:5050/batches/${id}`, data);
+  }
+
   getBatches(): Observable<any> {
     return this._http.get(this.Index);
   }

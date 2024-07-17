@@ -80,10 +80,10 @@ export class LoginComponent implements OnInit {
             //if (obj.role == 'admin') {
               localStorage.setItem('loggedInSaveAdmin', 'true');
               this.router.navigate(['admin/home/', 'courses']);
-              return;
+              // return;
             // } else if (obj.role == 'teacher') {
-            //   localStorage.setItem('loggedInSaveTeacher', 'true');
-            //   this.router.navigate(['teacher', 'home']);
+              // localStorage.setItem('loggedInSaveTeacher', 'true');
+              // this.router.navigate(['teacher', 'home']);
             // }
           // } else {
           //   this.openSnackBar();

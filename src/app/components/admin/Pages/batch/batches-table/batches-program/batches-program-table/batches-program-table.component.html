@@ -72,12 +72,12 @@
           <td mat-cell *matCellDef="let row; let i = dataIndex">
             <ng-container *ngIf="i != editingRowID; else editMode">
               <div>
-                {{ row.code }}
+                {{ row.programCode }}
               </div>
             </ng-container>
             <ng-template #editMode>
               <mat-form-field appearance="outline" class="dense-form-field-5">
-                <input matInput formControlName="code" [readonly]="true" />
+                <input matInput formControlName="programCode" [readonly]="true" />
                 <mat-error>Field must not be empty</mat-error>
               </mat-form-field>
             </ng-template>
@@ -104,10 +104,10 @@
                   (selectionChange)="onProgramChange($event)"
                 >
                   <mat-option
-                    *ngFor="let program of programNames"
+                    *ngFor="let program of programs"
                     [value]="program"
                   >
-                    {{ program }}
+                    {{ program.programName }}
                   </mat-option>
                 </mat-select>
                 <mat-error>Field must not be empty</mat-error>
@@ -122,11 +122,11 @@
             <ng-container *ngIf="i != editingRowID; else editMode">
               <span
                 *ngFor="
-                  let student of row.students.slice(0, 2);
+                  let student of row.students;
                   let last = last
                 "
               >
-                {{ student }}{{ last ? "" : ", " }}
+                {{ student.name }}{{ last ? "" : ", " }}
               </span>
               <ng-container *ngIf="row.students.length > 2">
                 <span
@@ -151,9 +151,15 @@
                 >
                   <mat-option
                     *ngFor="let student of students"
-                    [value]="student"
+                    [value]="{
+                      studentId:student.studentId,
+                      name:student.name,
+                      email:student.email,
+                      studentCode:student.studentCode,
+                      createdDate:student.createdDate
+                    }"
                   >
-                    {{ student }}
+                    {{ student.name }}
                   </mat-option>
                 </mat-select>
                 <mat-error>Field must not be empty</mat-error>
@@ -197,9 +203,12 @@
             >
               <ng-container *ngIf="row3 === expandedRowAdd">
                 <app-batches-program-courses-add
-                  [programCode]="programCodeForChild"
+                  [programId]="programIdForChild"
+                  [batchId]="this.batchId"
+                  [programCourses]="this.programCourses"
+                  [selectedBatchProgramCourseId]="this.selectedBatchProgramCourseId"
                   [rowIndex]="rowIndexForChild"
-                  (isAddClicked)="recieveIsAddClicked($event)"
+                  (isAddClicked)="recieveIsAddClicked(true)"
                 ></app-batches-program-courses-add>
               </ng-container>
             </div>

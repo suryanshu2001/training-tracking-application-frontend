@@ -54,8 +54,8 @@ export class BatchesAndProgramsComponent implements OnInit {
     });
   }
 
-  getBatchProgram(batchCode: string) {
-    this.batchProgramService.getBatchProgramByBatchCode(batchCode).subscribe({
+  getBatchProgram(batchId: number) {
+    this.batchProgramService.getBatchProgramByBatchId(batchId).subscribe({
       next: (data) => {
         // this.programs = data;
         for (const obj of data) {

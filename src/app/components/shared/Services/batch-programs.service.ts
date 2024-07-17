@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class BatchProgramsService {
-  Index: string = 'http://localhost:3000/batchPrograms';
+  Index: string = 'http://localhost:5050/batches';
   constructor(private _http: HttpClient) {}
 
   addBatchPrograms(data: BatchLayer2Data): Observable<any> {
@@ -18,8 +18,8 @@ export class BatchProgramsService {
     return this._http.get(`${this.Index}`);
   }
 
-  getBatchProgramByBatchCode(batchCode: string): Observable<any> {
-    return this._http.get(`${this.Index}?batchCode=${batchCode}`);
+  getBatchProgramByBatchId(batchId: number): Observable<any> {
+    return this._http.get(`${this.Index}/${batchId}`);
   }
 
   updateBatchProgram(id: string, data: any): Observable<any> {

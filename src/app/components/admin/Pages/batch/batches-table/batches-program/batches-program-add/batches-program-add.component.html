@@ -1,6 +1,6 @@
 <div class="batches-program-add-component">
   <!-- add batch form -->
-  <ng-container>
+  <ng-container *ngIf="this.programs.length!=0">
     <div class="add-course-form">
       <form (ngSubmit)="onSubmit()" [formGroup]="addBatchProgramReactiveForm">
         <div class="table-responsive">
@@ -85,15 +85,15 @@
                   style="width: 180px"
                 >
                   <mat-select
-                    formControlName="programName"
+                    formControlName="program"
                     placeholder="Select Program"
                     (selectionChange)="onProgramChange($event)"
                   >
                     <mat-option
-                      *ngFor="let program of programNames"
+                      *ngFor="let program of programs"
                       [value]="program"
                     >
-                      {{ program }}
+                      {{ program.programName }}
                     </mat-option>
                   </mat-select>
                   <mat-error>Field must not be empty</mat-error>
@@ -120,10 +120,10 @@
                   >
                     <mat-option
                       *ngFor="let student of students"
-                      [value]="student.studentName"
+                      [value]="{studentId:student.studentId}"
                     >
                       {{ student.studentCode }}:
-                      {{ student.studentName }}
+                      {{ student.name }}
                     </mat-option>
                   </mat-select>
                   <mat-error>Field must not be empty</mat-error>
