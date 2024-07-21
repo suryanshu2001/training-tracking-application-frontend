@@ -21,6 +21,8 @@ import { CourseTableDataService } from 'src/app/components/shared/Services/cours
 
 import { ExamsAddComponent } from './exams-add/exams-add.component';
 import { ExamsTableComponent } from './exams-table/exams-table.component';
+import { ExamsService } from '../../shared/Services/exams.service';
+import { map, Observable } from 'rxjs';
 @Component({
   selector: 'app-exams',
   standalone: true,
@@ -41,13 +43,21 @@ export class ExamsComponent implements OnInit, OnChanges {
   courses: any[] = [];
   createExam: boolean = false;
   openExamForm: boolean = false;
+  currentBPCId: number=0;
 
   @Input() isAssignments: boolean = false;
+  batchProgramCourseId: any;
+  students!: [];
+  newBatches!: any[];
+  filteredBatch: any;
+  selectedBatch: any;
 
   constructor(
     private batchService: BatchServiceService,
     private batchProgramService: BatchProgramsService,
-    private courseService: CourseTableDataService
+    private courseService: CourseTableDataService,
+    private examService: ExamsService,
+
   ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -58,33 +68,24 @@ export class ExamsComponent implements OnInit, OnChanges {
 
   ngOnInit(): void {
     this.getBatches();
+    this.setupForm();
+    this.getEvaluationStudents();
+  }
+
+  setupForm(): void {
     this.examReactiveForm = new FormGroup({
       batch: new FormControl(null, Validators.required),
-
-      batchStartDate: new FormControl(
-        { value: null, disabled: true },
-        Validators.required
-      ),
-
-      program: new FormControl(
-        { value: null, disabled: true },
-        Validators.required
-      ),
-
-      course: new FormControl(
-        { value: null, disabled: true },
-        Validators.required
-      ),
+      startDate: new FormControl({ value: null, disabled: true }, Validators.required),
+      program: new FormControl({ value: null, disabled: true }, Validators.required),
+      course: new FormControl({ value: null, disabled: true }, Validators.required),
     });
   }
 
   getBatches() {
     this.batchService.getBatches().subscribe({
       next: (data) => {
-        // console.log(data);
-        for (const obj of data) {
-          this.batches.push(obj);
-        }
+        this.batches = data;
+        console.log('Batches:', data);
       },
       error: (error) => {
         console.log(error);
@@ -92,16 +93,33 @@ export class ExamsComponent implements OnInit, OnChanges {
     });
   }
 
+  getEvaluationStudents(){
+    this.batchProgramService.getBatchProgram().subscribe({
+      next: (response) => {
+        this.newBatches = response;
+        console.log('Students:', response);
+      },
+      error: (error) => {
+        console.log(error);
+      },
+    })
+  }
+
   getBatchPrograms(batchId: number) {
     this.batchProgramService.getBatchProgramByBatchId(batchId).subscribe({
       next: (data) => {
-        // this.programs = data;
-        for (const obj of data) {
-          // console.log(obj);
-          this.programs.length = 0;
-          for (const batchProgram of obj.batchPrograms) {
-            this.programs.push(batchProgram);
-            // console.log(this.programs);
+        this.programs = [];
+        console.log("Batch Program Data:", data);
+
+        if (Array.isArray(data.batchProgramCourses)) {
+          const uniqueProgramCodes = new Set();
+
+          for (const batchProgramCourse of data.batchProgramCourses) {
+            if (batchProgramCourse.program && !uniqueProgramCodes.has(batchProgramCourse.program.programCode)) {
+              this.programs.push(batchProgramCourse.program);
+              uniqueProgramCodes.add(batchProgramCourse.program.programCode);
+              console.log('Program:', batchProgramCourse.program);
+            }
           }
         }
       },
@@ -111,54 +129,78 @@ export class ExamsComponent implements OnInit, OnChanges {
     });
   }
 
-  getCourses() {
-    this.courseService.getCourses().subscribe({
-      next: (data) => {
-        // console.log(data);
-        for (const obj of data) {
-          this.courses.push(obj);
-        }
-      },
-      error: (error) => {
-        console.log(error);
-      },
-    });
-  }
-
   onBatchChange(event: any) {
-    for (const obj of this.batches) {
-      if (obj.batchCode === event.value) {
-        const batchStartDate = obj.batchStartDate;
-        this.examReactiveForm?.get('program')?.enable();
-        this.getBatchPrograms(obj.batchCode);
-
-        this.examReactiveForm.get('batchStartDate')?.setValue(batchStartDate);
-
-        return;
-      }
+    this.selectedBatch = this.batches.find(obj => obj.batchId === event.value);
+    if (this.selectedBatch) {
+      const startDate = this.selectedBatch.startDate;
+      this.examReactiveForm?.get('program')?.enable();
+      this.getBatchPrograms(this.selectedBatch.batchId);
+      this.examReactiveForm.get('startDate')?.setValue(startDate);
     }
+    console.log("the filtered batch is: ",this.selectedBatch);
   }
 
-  onProgramChange() {
+  onProgramChange(event: any) {
     this.courses.length = 0;
-    this.getCourses();
+    const selectedProgramCode = event.value;
+    console.log('Selected Program Code:', selectedProgramCode);
+
+    const selectedProgram = this.programs.find(program => program.programCode === selectedProgramCode);
+
+    if (selectedProgram) {
+      console.log('Selected Program:', selectedProgram);
+      this.getCoursesByProgramId(selectedProgram.programId);
+    } else {
+      console.error('Selected program not found in the programs array');
+    }
+
     this.examReactiveForm?.get('course')?.enable();
   }
 
-  // controlled by child component
+  getCoursesByProgramId(programId: number) {
+    const selectedBatchId = this.examReactiveForm.get('batch')?.value;
+
+    return this.batchProgramService.getBatchProgramByBatchId(selectedBatchId).pipe(
+      map(data => {
+        if (Array.isArray(data.batchProgramCourses)) {
+          return data.batchProgramCourses
+            .filter((bpc: { program: { programId: number; }; }) => bpc.program && bpc.program.programId === programId)
+            .map((bpc: { course: any; batchProgramCourseId: any; }) => ({
+              ...bpc.course,
+              batchProgramCourseId: bpc.batchProgramCourseId
+            }));
+        }
+        return [];
+      })
+    ).subscribe({
+      next: (filteredCourses) => {
+        this.courses = filteredCourses;
+        console.log('Filtered courses:', this.courses);
+      },
+      error: (error) => {
+        console.error('Error fetching courses:', error);
+      }
+    });
+  }
+
+  onCourseChange(event: any) {
+    this.currentBPCId = event.value.batchProgramCourseId;
+    console.log("this bpc id",this.currentBPCId)
+  }
+
   closeForm() {
     this.createExam = false;
     this.openExamForm = false;
     this.examReactiveForm.reset();
     this.examReactiveForm.enable();
-    this.examReactiveForm?.get('batchStartDate')?.disable();
+    this.examReactiveForm?.get('startDate')?.disable();
   }
 
-  // this function controlls the child
   parentPayload!: any;
+
   openForm() {
     if (this.examReactiveForm.valid) {
-      this.examReactiveForm?.get('batchStartDate')?.enable();
+      this.examReactiveForm?.get('startDate')?.enable()
       this.parentPayload = {
         ...this.examReactiveForm.value,
       };
@@ -167,4 +209,5 @@ export class ExamsComponent implements OnInit, OnChanges {
       this.createExam = false;
     }
   }
+
 }

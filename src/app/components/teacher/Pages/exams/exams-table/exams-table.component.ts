@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
@@ -24,6 +24,8 @@ import { MatTableDataSource } from '@angular/material/table';
 import { AssignmentService } from '../../../shared/Services/assignment.service';
 import { MatDialog } from '@angular/material/dialog';
 import { DeleteDialogueComponent } from 'src/app/components/shared/delete-dialogue/delete-dialogue.component';
+import { Observable } from 'rxjs';
+
 @Component({
   selector: 'app-exams-table',
   standalone: true,
@@ -48,26 +50,30 @@ export class ExamsTableComponent implements OnInit {
     private _dialog: MatDialog
   ) {}
 
+
   @Input() isAssignments: boolean = false;
+  @Input() batchProgramCourseId: any;
+  @Input() currentBPCId!: number;
+  @Input() students!:any []
 
   displayedColumns: string[] = [];
   setUpColumns() {
     if (this.isAssignments) {
       this.displayedColumns = [
         'actions',
-        'assignmentName',
+        'evaluationName',
         'totalMarks',
-        'assignmentDate',
-        'assignmentTime',
+        'submissionDate',
+        'evaluationTime',
         'uploadFile',
       ];
     } else {
       this.displayedColumns = [
         'actions',
-        'examName',
+        'evaluationName',
         'totalMarks',
-        'examDate',
-        'examTime',
+        'submissionDate',
+        'evaluationTime',
         'uploadFile',
       ];
     }
@@ -79,21 +85,18 @@ export class ExamsTableComponent implements OnInit {
 
   editingRowID: number = -1;
 
-  students: string[] = [
-    'Rishikesh Sarangi',
-    'Ateek Gautam',
-    'Harshdeep Singh',
-    'Nikita Dubey',
-  ];
-
+  // students: string[] = [];
+  currentBatchProgramCourseId!: number;
   sharedReactiveForm!: FormGroup;
+  sharedReactiveFormMarks!: FormGroup;
 
   ngOnInit(): void {
     this.setUpColumns();
-    this.getSharedDetails();
+    this.subscribeToBPCIdChanges();
+    console.log("table bpcID:",this.batchProgramCourseId);
 
     this.sharedReactiveForm = new FormGroup({
-      [this.isAssignments ? 'assignmentName' : 'examName']: new FormControl(
+      [this.isAssignments ? 'evaluationName' : 'evaluationName']: new FormControl(
         null,
         [
           Validators.required,
@@ -104,26 +107,44 @@ export class ExamsTableComponent implements OnInit {
         Validators.required,
         Validators.pattern(/^[0-9]+$/), // regex for numbers only
       ]),
-      [this.isAssignments ? 'assignmentDate' : 'examDate']: new FormControl(
+      [this.isAssignments ? 'submissionDate' : 'submissionDate']: new FormControl(
         null,
         [Validators.required, Validators.pattern(/^[\S]+(\s+[\S]+)*$/)]
       ),
-      [this.isAssignments ? 'assignmentTime' : 'examTime']: new FormControl(
+      [this.isAssignments ? 'evaluationTime' : 'evaluationTime']: new FormControl(
         null,
         [Validators.required, Validators.pattern(/^[\S]+(\s+[\S]+)*$/)]
       ),
       uploadFile: new FormControl(null),
     });
+
+
+      this.sharedReactiveFormMarks = new FormGroup({
+        studentName: new FormControl(null, [Validators.required, Validators.pattern(/^[\S]+(\s+[\S]+)*$/)]),
+        marks: new FormControl(null, [Validators.required, Validators.pattern(/^[0-9]+$/)]),
+      });
+
   }
 
-  getSharedDetails() {
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['currentBPCId']) {
+      this.loadData();
+    }
+  }
+
+  loadData() {
     const serviceMethod = this.isAssignments
       ? this.assignmentService.getAssignments()
       : this.examService.getExams();
 
     serviceMethod.subscribe({
-      next: (data) => {
-        this.dataSource = new MatTableDataSource(data);
+      next: (response) => {
+        console.log("Filter Data in table : ",response.data);
+        const filteredData = response.data.filter((item: any) => {
+          return item.evaluationType === (this.isAssignments ? 'assignment' : 'exam') &&
+                 item.batchProgramCourse?.batchProgramCourseId == this.currentBPCId;
+        });
+        this.dataSource = new MatTableDataSource(filteredData);
         this.dataSource.sort = this.sort;
       },
       error: (err) => {
@@ -132,9 +153,35 @@ export class ExamsTableComponent implements OnInit {
     });
   }
 
-  editSharedData(id: number, row: any) {
-    this.editingRowID = id;
+subscribeToBPCIdChanges() {
+  const serviceMethod = this.isAssignments
+      ? this.assignmentService.getAssignments()
+      : this.examService.getExams();
+
+    serviceMethod.subscribe({
+      next: (response) => {
+        // Filter data based on evaluationType
+        const filteredData = response.data.filter((item: any) =>{
+          console.log("item:::",item,this.currentBPCId)
+          return item.evaluationType === (this.isAssignments ? 'assignment' : 'exam')
+          &&item.batchProgramCourse?.batchProgramCourseId==this.currentBPCId
+          }
+        );
+        this.dataSource = new MatTableDataSource(filteredData);
+        this.dataSource.sort = this.sort;
+        console.log("data source",this.dataSource)
+      },
+      error: (err) => {
+        console.log(err);
+      },
+    });
+
+  }
+
+  editSharedData(evaluationId: number, row: any) {
+    this.editingRowID = evaluationId;
     this.sharedReactiveForm.patchValue(row);
+    console.log(this.currentBPCId);
   }
 
   deleteSharedData(row: any) {
@@ -147,12 +194,12 @@ export class ExamsTableComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         const serviceMethod = this.isAssignments
-          ? this.assignmentService.deleteAssignments(row.id)
-          : this.examService.deleteExams(row.id);
+          ? this.assignmentService.deleteAssignments(row.evaluationId)
+          : this.examService.deleteExams(row.evaluationId);
 
         serviceMethod.subscribe({
           next: (data) => {
-            this.getSharedDetails();
+            this.subscribeToBPCIdChanges()
           },
           error: (err) => {
             console.log(err);
@@ -164,25 +211,30 @@ export class ExamsTableComponent implements OnInit {
 
   saveSharedData(row: any) {
     if (this.sharedReactiveForm.valid) {
-      // console.log(this.sharedReactiveForm.get('assignmentTime')?.value);
-
-      // this.timeConverter(
-      //   this.sharedReactiveForm.get(
-      //     this.isAssignments ? 'assignmentTime' : 'examTime'
-      //   )?.value
-      // );
-
+      console.log("Save initiated :",this.currentBPCId)
       const serviceMethod = this.isAssignments
         ? this.assignmentService.editAssignments(
-            row.id,
-            this.sharedReactiveForm.value
+            row.evaluationId,
+            {
+              ...this.sharedReactiveForm.value,
+              batchProgramCourse:{batchProgramCourseId:this.currentBPCId},
+              evaluationType: 'assignment', // Adding evaluationType
+            }
           )
-        : this.examService.editExams(row.id, this.sharedReactiveForm.value);
+        : this.examService.editExams(
+            row.evaluationId,
+            {
+              ...this.sharedReactiveForm.value,
+              batchProgramCourse:{batchProgramCourseId:this.currentBPCId},
+              evaluationType: 'exam', // Adding evaluationType
+            }
+          );
 
       serviceMethod.subscribe({
         next: (data) => {
           this.cancelEditing();
-          this.getSharedDetails();
+          this.subscribeToBPCIdChanges();
+          window.location.reload()
         },
         error: (err) => {
           console.log(err);
@@ -190,34 +242,6 @@ export class ExamsTableComponent implements OnInit {
       });
     }
   }
-
-  // timeConverter(time: string) {
-  //   const timeString = this.isAssignments
-  //     ? this.sharedReactiveForm.get('assignmentTime')?.value
-  //     : this.sharedReactiveForm.get('examTime')?.value;
-
-  //   const [hours, minutes] = timeString.split(':');
-  //   const hoursNum = parseInt(hours, 10);
-
-  //   let period = 'AM';
-  //   let hoursConverted = hoursNum;
-
-  //   if (hoursNum === 0) {
-  //     hoursConverted = 12;
-  //   } else if (hoursNum === 12) {
-  //     period = 'PM';
-  //   } else if (hoursNum > 12) {
-  //     hoursConverted = hoursNum - 12;
-  //     period = 'PM';
-  //   }
-
-  //   const formattedHours = hoursConverted.toString().padStart(2, '0');
-  //   const formattedMinutes = minutes.padStart(2, '0');
-
-  //   this.sharedReactiveForm
-  //     .get(this.isAssignments ? 'assignmentTime' : 'examTime')
-  //     ?.setValue(`${formattedHours}:${formattedMinutes} ${period}`);
-  // }
 
   cancelEditing() {
     this.editingRowID = -1;
@@ -235,5 +259,37 @@ export class ExamsTableComponent implements OnInit {
   onFileSelected(event: any) {
     const file = event.target.files[0];
     // console.log(file);
+  }
+
+  onMarkSave(){
+    // if (this.sharedReactiveFormMarks.valid) {
+    //   const marksPayload = {
+    //     ...this.sharedReactiveFormMarks.value.marks,
+    //     // ...this.
+    //     // ...this.parentPayload,
+    //     // batchProgramCourse:{batchProgramCourseId:this.currentBPCId},
+    //     evaluationType: this.isAssignments ? 'assignment' : 'exam', // Adding evaluationType
+    //   };
+    //   console.log(marksPayload);
+
+    //   // conditionally check if we are in assignments or exams and make the service call
+    //   const serviceMethod = this.isAssignments
+    //     ? this.evaluationStudentsService.addEvaluationStudents(marksPayload)
+    //     : this.evaluationStudentsService.addEvaluationStudents(marksPayload)
+
+    //   serviceMethod.subscribe({
+    //     next: (res) => {
+    //       this.sharedReactiveFormMarks.reset();
+    //       this.closeForm();
+    //       // console.log(res);
+    //     },
+    //     error: (err) => {
+    //       console.log(err);
+    //     },
+    //   });
+    // }
+  }
+  closeForm() {
+    throw new Error('Method not implemented.');
   }
 }

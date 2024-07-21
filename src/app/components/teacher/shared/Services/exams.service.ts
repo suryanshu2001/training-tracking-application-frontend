@@ -6,7 +6,9 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class ExamsService {
-  endpoint = 'http://localhost:3000/exams';
+  endpoint = 'http://localhost:5050/exams';
+
+  batchProgramCourseId! : number;
 
   constructor(private _http: HttpClient) {}
 

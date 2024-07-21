@@ -54,7 +54,7 @@
 
         <!-- exam name and assignment name -->
         <ng-container
-          [matColumnDef]="isAssignments ? 'assignmentName' : 'examName'"
+          [matColumnDef]="isAssignments ? 'evaluationName' : 'evaluationName'"
         >
           <th mat-header-cell *matHeaderCellDef mat-sort-header>
             {{ isAssignments ? "Assignment Name" : "Exam Name" }}
@@ -62,7 +62,7 @@
           <td mat-cell *matCellDef="let row; let i = dataIndex">
             <ng-container *ngIf="i != editingRowID; else editMode">
               <div>
-                {{ row[isAssignments ? "assignmentName" : "examName"] }}
+                {{ row[isAssignments ? "evaluationName" : "evaluationName"] }}
               </div>
             </ng-container>
             <ng-template #editMode>
@@ -70,7 +70,7 @@
                 <input
                   matInput
                   [formControlName]="
-                    isAssignments ? 'assignmentName' : 'examName'
+                    isAssignments ? 'evaluationName' : 'evaluationName'
                   "
                 />
                 <mat-error>Field must not be empty</mat-error>
@@ -99,14 +99,14 @@
 
         <!-- Exam Date / Assignment Date -->
         <ng-container
-          [matColumnDef]="isAssignments ? 'assignmentDate' : 'examDate'"
+          [matColumnDef]="isAssignments ? 'submissionDate' : 'submissionDate'"
         >
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
           <td mat-cell *matCellDef="let row; let i = dataIndex">
             <ng-container *ngIf="i != editingRowID; else editMode">
               <div>
                 {{
-                  row[isAssignments ? "assignmentDate" : "examDate"]
+                  row[isAssignments ? "submissionDate" : "submissionDate"]
                     | date : "dd MMM yyyy"
                 }}
               </div>
@@ -122,7 +122,7 @@
                   matInput
                   [matDatepicker]="picker"
                   [formControlName]="
-                    isAssignments ? 'assignmentDate' : 'examDate'
+                    isAssignments ? 'submissionDate' : 'submissionDate'
                   "
                   placeholder="Select Date"
                 />
@@ -138,7 +138,7 @@
 
         <!-- exam time / assignment time -->
         <ng-container
-          [matColumnDef]="isAssignments ? 'assignmentTime' : 'examTime'"
+          [matColumnDef]="isAssignments ? 'evaluationTime' : 'evaluationTime'"
         >
           <th mat-header-cell *matHeaderCellDef mat-sort-header>
             {{ isAssignments ? "Assignment Time" : "Exam Time" }}
@@ -146,7 +146,7 @@
           <td mat-cell *matCellDef="let row; let i = dataIndex">
             <ng-container *ngIf="i != editingRowID; else editMode">
               <div>
-                {{ row[isAssignments ? "assignmentTime" : "examTime"] }}
+                {{ row[isAssignments ? "evaluationTime" : "evaluationTime"] }}
               </div>
             </ng-container>
             <ng-template #editMode>
@@ -155,7 +155,7 @@
                   matInput
                   type="time"
                   [formControlName]="
-                    isAssignments ? 'assignmentTime' : 'examTime'
+                    isAssignments ? 'evaluationTime' : 'evaluationTime'
                   "
                 />
                 <mat-error>Field must not be empty</mat-error>
@@ -249,7 +249,7 @@
                         fxLayout="row"
                         fxLayoutGap="20px"
                       >
-                        <div style="min-width: 130px">{{ student }}</div>
+                        <div style="min-width: 130px">{{ student.name }}</div>
                         <div>
                           <input type="text" style="width: 50px" />
                         </div>
@@ -265,7 +265,7 @@
                     >
                       Close
                     </button>
-                    <button mat-raised-button>Save</button>
+                    <button mat-raised-button color="primary" (click)="onMarkSave()">Save</button>
                   </div>
                 </div>
               </ng-container>

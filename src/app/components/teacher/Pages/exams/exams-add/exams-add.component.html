@@ -34,7 +34,7 @@
 
         <!-- Exam Name/ Assignment Name  Column -->
         <ng-container
-          [matColumnDef]="isAssignments ? 'assignmentName' : 'examName'"
+          [matColumnDef]="isAssignments ? 'evaluationName' : 'evaluationName'"
         >
           <th mat-header-cell *matHeaderCellDef>
             <span class="mat-subtitle-1" style="font-weight: 500">{{
@@ -46,7 +46,7 @@
               <input
                 matInput
                 [formControlName]="
-                  isAssignments ? 'assignmentName' : 'examName'
+                  isAssignments ? 'evaluationName' : 'evaluationName'
                 "
                 [placeholder]="
                   isAssignments
@@ -84,7 +84,7 @@
 
         <!-- exam date / assignment date -->
         <ng-container
-          [matColumnDef]="isAssignments ? 'assignmentDate' : 'examDate'"
+          [matColumnDef]="isAssignments ? 'submissionDate' : 'submissionDate'"
         >
           <th mat-header-cell *matHeaderCellDef>
             <span class="mat-subtitle-1" style="font-weight: 500">Date</span>
@@ -100,7 +100,7 @@
                 matInput
                 [matDatepicker]="picker"
                 [formControlName]="
-                  isAssignments ? 'assignmentDate' : 'examDate'
+                  isAssignments ? 'submissionDate' : 'submissionDate'
                 "
                 placeholder="Select Date"
               />
@@ -115,7 +115,7 @@
 
         <!-- exam time/ assignment time col -->
         <ng-container
-          [matColumnDef]="isAssignments ? 'assignmentTime' : 'examTime'"
+          [matColumnDef]="isAssignments ? 'evaluationTime' : 'evaluationTime'"
         >
           <th mat-header-cell *matHeaderCellDef>
             <span class="mat-subtitle-1" style="font-weight: 500">Time</span>
@@ -126,7 +126,7 @@
                 matInput
                 type="time"
                 [formControlName]="
-                  isAssignments ? 'assignmentTime' : 'examTime'
+                  isAssignments ? 'evaluationTime' : 'evaluationTime'
                 "
                 placeholder="Enter Time"
               />

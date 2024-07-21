@@ -13,6 +13,7 @@ import {
 import { CourseTableDataService } from '../../../shared/Services/course-table-data.service';
 import { StudentTableService } from '../../../shared/Services/student-table.service';
 import { StudentsTableComponent } from './students-table/students-table.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
 @Component({
   selector: 'app-students',
   standalone: true,
@@ -27,7 +28,10 @@ import { StudentsTableComponent } from './students-table/students-table.componen
   styleUrls: ['./students.component.scss'],
 })
 export class StudentsComponent {
-  constructor(private studentService: StudentTableService) {}
+  constructor(
+    private studentService: StudentTableService,
+    private snackBar : MatSnackBar
+    ) {}
 
   isAddStudentClicked: boolean = false;
   addStudentReactiveForm!: FormGroup;
@@ -46,19 +50,56 @@ export class StudentsComponent {
     });
   }
 
-  onSubmit() {
+  protected onSubmit() {
     if (this.addStudentReactiveForm.valid) {
+      this.addBackgroundBlur();
+
+      const sendingSnackBar = this.snackBar.open('Sending...', '', {
+        duration: undefined,
+      });
+
       this.studentService
         .addStudent(this.addStudentReactiveForm.value)
         .subscribe({
           next: () => {
-            this.isAddStudentClicked = !this.isAddStudentClicked;
-            this.addStudentReactiveForm.reset();
+            sendingSnackBar.dismiss();
+            this.snackBar.open('Student added successfully', 'Close', {
+              duration: 1000,
+            }).afterDismissed().subscribe(() => {
+              this.removeBackgroundBlur();
+              this.isAddStudentClicked = false;
+              this.addStudentReactiveForm.reset();
+              this.refreshStudentsTable();
+            });
           },
           error: (err) => {
+            sendingSnackBar.dismiss();
+            this.snackBar.open('Error adding student', 'Close', {
+              duration: 1000,
+            }).afterDismissed().subscribe(() => {
+              this.removeBackgroundBlur();
+            });
             console.log(err);
           },
         });
+    }
+  }
+
+  private refreshStudentsTable(){
+    window.location.reload();
+  }
+
+  private addBackgroundBlur() {
+    const blurOverlay = document.querySelector('.blur-overlay') as HTMLElement;
+    if (blurOverlay) {
+      blurOverlay.style.display = 'block';
+    }
+  }
+
+  private removeBackgroundBlur() {
+    const blurOverlay = document.querySelector('.blur-overlay') as HTMLElement;
+    if (blurOverlay) {
+      blurOverlay.style.display = 'none';
     }
   }
 

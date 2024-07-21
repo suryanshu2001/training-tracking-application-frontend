@@ -1,7 +1,7 @@
 export interface ExamModel {
-  examName: string;
+  evaluationName: string;
   totalMarks: number;
-  examDate: string;
-  examTime: string;
+  submissionDate: string;
+  evaluationTime: string;
   uploadFile: string;
 }

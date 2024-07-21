@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class AssignmentService {
-  endpoint = 'http://localhost:3000/assignments';
+  endpoint = 'http://localhost:5050/exams';
 
   constructor(private _http: HttpClient) {}
 
@@ -26,3 +26,4 @@ export class AssignmentService {
     return this._http.patch(`${this.endpoint}/${id}`, data);
   }
 }
+
