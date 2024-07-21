@@ -43,7 +43,7 @@
             <ng-container *ngIf="i != editingRowID; else editMode">
               <!-- (click)="navigateToTopics(row)" -->
               <div class="code">
-                {{ row.ProgramCode }}
+                {{ row.programCode }}
               </div>
             </ng-container>
             <ng-template #editMode>
@@ -96,6 +96,7 @@
               >
                 <input
                   matInput
+                  type="number"
                   name="theoryTime"
                   formControlName="theoryTime"
                   placeholder="0 hr"
@@ -120,6 +121,7 @@
               >
                 <input
                   matInput
+                  type="number"
                   name="practiceTime"
                   formControlName="practiceTime"
                   placeholder="0 hr"

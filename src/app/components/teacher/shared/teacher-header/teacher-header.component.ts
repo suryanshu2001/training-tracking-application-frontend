@@ -10,7 +10,10 @@ import { MaterialModule } from 'src/app/material.module';
   styleUrls: ['./teacher-header.component.scss'],
 })
 export class TeacherHeaderComponent {
-  constructor(private router: Router) {}
+  user: any;
+  constructor(private router: Router) {
+    this.getUser();
+  }
 
   // course-programs toggle
   selectedTab: string = 'Courses';
@@ -24,5 +27,9 @@ export class TeacherHeaderComponent {
     selectedTabBool
       ? (this.selectedTab = 'Courses')
       : (this.selectedTab = 'Programs');
+  }
+
+  getUser(){
+    this.user = JSON.parse(localStorage.getItem('user') ?? '{}');
   }
 }

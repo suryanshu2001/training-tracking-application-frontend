@@ -7,12 +7,17 @@
   <!-- main-content -->
   <mat-card class="card">
     <div class="card-header">
-      <!-- animationDuration="0ms" -->
-      <mat-tab-group class="tab-group">
-        <mat-tab label="Batches & Programs"
-          ><app-batches-and-programs></app-batches-and-programs
-        ></mat-tab>
-        <mat-tab label="Attendance"><app-attendance></app-attendance></mat-tab>
+      <mat-tab-group class="tab-group" [(selectedIndex)]="selectedIndex">
+        <mat-tab label="Batches & Programs">
+          <ng-template matTabContent>
+            <app-batches-and-programs *ngIf="selectedIndex === 0"></app-batches-and-programs>
+          </ng-template>
+        </mat-tab>
+        <mat-tab label="Attendance">
+          <ng-template matTabContent>
+            <app-attendance *ngIf="selectedIndex === 1"></app-attendance>
+          </ng-template>
+        </mat-tab>
       </mat-tab-group>
     </div>
     <mat-divider></mat-divider>

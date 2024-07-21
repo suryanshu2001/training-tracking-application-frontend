@@ -23,7 +23,11 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
   styleUrls: ['./header.component.scss'],
 })
 export class HeaderComponent {
-  constructor(private router: Router) {}
+  user: any;
+
+  constructor(private router: Router) {
+    this.getUser();
+  }
 
   // course-programs toggle
   selectedTab: string = 'Courses';
@@ -31,6 +35,10 @@ export class HeaderComponent {
   protected logOut() {
     localStorage.clear();
     this.router.navigate(['']);
+  }
+
+  getUser(){
+    this.user = JSON.parse(localStorage.getItem('user') ?? '{}');
   }
 
   protected toggleCoursePrograms(selectedTabBool: boolean) {

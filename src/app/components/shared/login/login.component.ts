@@ -52,7 +52,7 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     this.loginForm = new FormGroup({
-      username: new FormControl(null, Validators.required),
+      email: new FormControl(null, Validators.required),
       password: new FormControl(null, [
         Validators.required,
         Validators.minLength(3),
@@ -70,47 +70,27 @@ export class LoginComponent implements OnInit {
   }
 
   protected onSubmit() {
-    // this.loginService.getUsers().subscribe({
-    //   next: (data) => {
-        // for (const obj of data) {
-          // if (
-          //   this.loginForm.value.username == obj.username &&
-          //   this.loginForm.value.password == obj.password
-          // ) {
-            //if (obj.role == 'admin') {
-              localStorage.setItem('loggedInSaveAdmin', 'true');
-              this.router.navigate(['admin/home/', 'courses']);
-              // return;
-            // } else if (obj.role == 'teacher') {
-              // localStorage.setItem('loggedInSaveTeacher', 'true');
-              // this.router.navigate(['teacher', 'home']);
-            // }
-          // } else {
-          //   this.openSnackBar();
-          // }
-       // }
-      //},
-      // error: (err) => {
-      //   console.log(err);
-      // },
-   // });
+    const requestBody={
+      userEmail:this.loginForm.get("email")?.value,
+      userPassword:this.loginForm.get("password")?.value
+    }
+    this.loginService.login(requestBody).subscribe({
+      next: (data) => {
 
-    // if (
-    //   this.loginForm.value.username == 'admin' &&
-    //   this.loginForm.value.password == 'admin' &&
-    //   this.loginForm.value.rememberMe == true
-    // ) {
-    //   localStorage.setItem('loggedInSave', 'true');
-    //   this.router.navigate(['admin/home/', 'courses']);
-    // } else if (
-    //   this.loginForm.value.username == 'admin' &&
-    //   this.loginForm.value.password == 'admin'
-    // ) {
-    //   localStorage.setItem('loggedInTemp', 'true');
-    //   this.router.navigate(['admin/home/', 'courses']);
-    // } else {
-    //   this.openSnackBar();
-    // }
-    // console.log(this.loginForm);
-  }
+            if (data.userRole == 'admin') {
+              localStorage.setItem('loggedInSaveAdmin', 'true');
+              localStorage.setItem('user',JSON.stringify(data))
+              this.router.navigate(['admin/home/', 'courses']);
+              return;
+            } else if (data.userRole == 'teacher') {
+              localStorage.setItem('loggedInSaveTeacher', 'true');
+              localStorage.setItem('user',JSON.stringify(data))
+              this.router.navigate(['teacher', 'home']);
+            }
+      }
+
+   });
+
+
+}
 }

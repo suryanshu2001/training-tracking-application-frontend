@@ -6,3 +6,16 @@
   flex-direction: column;
   gap: 20px;
 }
+
+
+.mat-row:nth-child(even) {
+  background-color: #f5f5f5 !important;
+}
+
+.mat-row:nth-child(odd) {
+  background-color: white !important;
+}
+
+.mat-header-row {
+  background-color: #fff !important; /* or any color you prefer for the header */
+}

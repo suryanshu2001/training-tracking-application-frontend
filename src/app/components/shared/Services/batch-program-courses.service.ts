@@ -9,6 +9,7 @@ export class BatchProgramCoursesService {
   Index: string = 'http://localhost:5050/batchProgramCourse';
   batchId!: number;
   programId!: number;
+  teacher!: any;
   constructor(private _http: HttpClient) {}
 
   setBatchId(batchId: number) {
@@ -66,6 +67,12 @@ export class BatchProgramCoursesService {
 
   deleteBatchProgramCourseProgram(id: number){
     return this._http.delete(`${this.Index}/program/${id}`);
+  }
+
+  getBatchProgramCoursesByTeacher(){
+    this.teacher = JSON.parse(localStorage.getItem('user') ?? '{}');
+    console.log("teacher is:",this.teacher)
+    return this._http.get(`${this.Index}/teacher/${this.teacher.userId}`);
   }
 
 }

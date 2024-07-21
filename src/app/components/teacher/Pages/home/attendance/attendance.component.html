@@ -18,7 +18,7 @@
           formControlName="batch"
           (selectionChange)="onBatchChange($event)"
         >
-          <mat-option *ngFor="let batch of batches" [value]="batch.batchCode">
+          <mat-option *ngFor="let batch of uniqueBatches" [value]="batch">
             Batch {{ batch.batchCode }}: {{ batch.batchName }}
           </mat-option>
         </mat-select>
@@ -36,6 +36,7 @@
           matInput
           formControlName="batchStartDate"
           placeholder="Batch Start Date"
+          [value]="startDate"
           [readonly]="true"
         />
       </mat-form-field>
@@ -50,10 +51,10 @@
         <mat-select
           placeholder="Program Code: Program Name"
           formControlName="program"
-          (selectionChange)="onProgramChange()"
+          (selectionChange)="onProgramChange($event)"
         >
-          <mat-option *ngFor="let program of programs" [value]="program.code">
-            {{ program.code }}: {{ program.programName }}
+          <mat-option *ngFor="let program of uniquePrograms" [value]="program">
+            {{ program.programCode }}: {{ program.programName }}
           </mat-option>
         </mat-select>
         <mat-error>Field must not be empty</mat-error>
@@ -69,10 +70,10 @@
         <mat-select
           placeholder="Course Code: Course Name"
           formControlName="course"
-          (selectionChange)="onCourseChange()"
+          (selectionChange)="onCourseChange($event)"
         >
-          <mat-option *ngFor="let course of courses" [value]="course">
-            {{ course }}
+          <mat-option *ngFor="let courseTopic of courseTopics" [value]="courseTopic">
+            {{ courseTopic.courseName}}
           </mat-option>
         </mat-select>
         <mat-error>Field must not be empty</mat-error>
@@ -91,7 +92,7 @@
           [matDatepicker]="picker"
           formControlName="date"
           placeholder="Select Date"
-          (dateChange)="onDateChange()"
+          (dateChange)="onDateChange($event)"
         />
         <mat-datepicker-toggle
           matIconSuffix
@@ -102,16 +103,15 @@
       <button
         mat-stroked-button
         [disabled]="!enableAddTopic"
-        (click)="sendPayloadToChild()"
+        (click)="addTopicClicked()"
       >
         Add Topic
       </button>
     </div>
   </form>
-
-  <div class="child-component">
+  <div *ngIf="enableTable" class="child-component">
     <app-attendance-table
-      [enabledTable]="enableTable"
+      [enabledTable]="addTopicDropDown"
       [parentFormData]="attendancePayload"
     ></app-attendance-table>
   </div>

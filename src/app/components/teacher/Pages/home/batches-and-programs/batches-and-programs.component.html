@@ -18,7 +18,7 @@
         formControlName="batch"
         (selectionChange)="onBatchChange($event)"
       >
-        <mat-option *ngFor="let batch of batches" [value]="batch.batchCode">
+        <mat-option *ngFor="let batch of uniqueBatches" [value]="batch">
           Batch {{ batch.batchCode }}: {{ batch.batchName }}
         </mat-option>
       </mat-select>
@@ -36,6 +36,7 @@
         matInput
         formControlName="batchStartDate"
         placeholder="Batch Start Date"
+        [value]="startDate"
         [readonly]="true"
       />
     </mat-form-field>
@@ -50,12 +51,48 @@
       <mat-select
         placeholder="Program Code: Program Name"
         formControlName="program"
+        (selectionChange)="onProgramChange($event)"
       >
-        <mat-option *ngFor="let program of programs" [value]="program.code">
-          {{ program.code }}: {{ program.programName }}
+        <mat-option *ngFor="let program of uniquePrograms" [value]="program">
+          {{ program.programCode }}: {{ program.programName }}
         </mat-option>
       </mat-select>
       <mat-error>Field must not be empty</mat-error>
     </mat-form-field>
   </form>
+    <ng-container *ngIf="dataSource">
+      <table mat-table [dataSource]="dataSource" class="mat-elevation-z1">
+
+        <ng-container matColumnDef="code">
+          <th mat-header-cell *matHeaderCellDef>Code</th>
+          <td mat-cell *matCellDef="let element"> {{element.code}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="courseName">
+          <th mat-header-cell *matHeaderCellDef>Course Name</th>
+          <td mat-cell *matCellDef="let element"> {{element.courseName}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="topicsCompleted">
+          <th mat-header-cell *matHeaderCellDef>Topics Completed</th>
+          <td mat-cell *matCellDef="let element"> {{element.topicsCompleted?.length!=0 ? element.topicsCompleted.join(', ') : "NA"}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="topicsInProgress">
+          <th mat-header-cell *matHeaderCellDef>Topics In Progress</th>
+          <td mat-cell *matCellDef="let element">
+            {{getTopicsInProgress(element)}}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="courseCompletionPercentage">
+          <th mat-header-cell *matHeaderCellDef>Completion %</th>
+          <td mat-cell *matCellDef="let element"> {{element.courseCompletionPercentage}}{{" %"}} </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns" style="background-color: #e5ecf6"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" style="background-color: #f3f5f9"></tr>
+      </table>
+    </ng-container>
 </div>
+

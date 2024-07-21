@@ -6,11 +6,15 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class LoginService {
-  endpoint: string = 'http://localhost:3000/users';
+  endpoint: string = 'http://localhost:5050/user';
 
   constructor(private _http: HttpClient) {}
 
   getUsers(): Observable<any> {
     return this._http.get(this.endpoint);
+  }
+
+  login(data: any): Observable<any> {
+    return this._http.post(this.endpoint + '/login',data);
   }
 }
